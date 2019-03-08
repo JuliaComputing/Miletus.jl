@@ -1,0 +1,31 @@
+\makeheadrule{headings}{\textwidth}{\normalrulethickness}
+\makeevenfoot{headings}{\includegraphics[width = 3mm]{assets/4dots.png}}{}{\textit{\textcopyright Julia Computing Inc.}}
+\makeoddfoot{headings}{\textit{\textcopyright Julia Computing, Inc.}}{}{\includegraphics[width = 3mm]{assets/4dots.png}}
+\makeevenfoot{plain}{\includegraphics[width = 3mm]{assets/4dots.png}}{\thepage}{\textit{\textcopyright Julia Computing Inc.}}
+\makeoddfoot{plain}{\textit{\textcopyright Julia Computing, Inc.}}{\thepage}{\includegraphics[width = 3mm]{assets/4dots.png}}
+
+\makeatletter
+\def\@maketitle{
+\thispagestyle{empty}
+\raggedright
+\begin{center}
+\includegraphics[width = 40mm]{assets/logo.png}\\[8ex]
+{\Huge \bfseries \sffamily \@title }\\[4ex]
+\@date\\[8ex]
+\textit {\bfseries info@juliacomputing.com}
+\vfill
+\textit {\textcopyright 2016-\the\year Julia Computing, Inc. All rights reserved.}
+\end{center}
+\newpage}
+\makeatother
+
+\usepackage[export]{adjustbox}
+\let\oldincludegraphics\includegraphics
+\renewcommand{\includegraphics}[2][]{
+  \oldincludegraphics[#1,max width=\linewidth]{#2}}
+
+
+\usepackage{float}
+\let\oldfigure\figure
+\renewcommand{\figure}[1][]{
+  \oldfigure[H]{#1}}
