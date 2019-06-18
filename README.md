@@ -1,6 +1,6 @@
 # Miletus.jl
 
-[![Build Status](https://dev.azure.com/noack/Miletus/_apis/build/status/JuliaComputing.Miletus.jl?branchName=master)](https://dev.azure.com/noack/Miletus/_build/latest?definitionId=2?branchName=master)
+[![Build Status](https://travis-ci.org/JuliaComputing/Miletus.jl.svg?branch=master)](https://travis-ci.org/JuliaComputing/Miletus.jl)
 
 *Miletus* is a financial contract modelling language written in Julia, based on papers by Peyton Jones and Eber [[PJ&E2000]](#PJE2000),[[PJ&E2003]](#PJE2003) (more closely modelled on the second one).
 
