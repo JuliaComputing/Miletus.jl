@@ -1,5 +1,5 @@
 name = "Miletus"
-uuid = "3c37d3ee-41ed-11e9-00d6-03f240eb8aa5"
+uuid = "3ae66bd7-4256-56cd-8b87-f856965b5ccf"
 authors = ["Simon Byrne <simon@juliacomputing.com>", "Avik Sengupta <avik@juliacomputing.com>"]
 version = "0.1.0"
 
