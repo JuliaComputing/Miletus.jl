@@ -14,12 +14,12 @@ Miletus provides functionality for teams across an organization, both front offi
 
 ## Installation
 
-Installation of Miletus can be performed by obtaining an installer from Julia Computing as part of your JuliaFin purchase.
-
-Once installed, to load the Miletus package in your current Julia session, use the following command:
+Installation of Miletus can be performed using Julia's package manager. Once installed, to load the Miletus package in your current Julia session, use the following command:
 
 ```@example
 using Miletus
 ```
 
 At this point you can use any of the primitive Miletus types for defining new contracts, constructing and manipulating either your own contracts or a set of pre-existing option contracts included with Miletus, as well as executing valuation operations against any combination of built-in and user-defined primitives that comprise your contract.
+
+An extended version of Miletus (called Miletus Pro), with additonal models, can be purchased from Julia Computing. A trial install of MiletusPro is available as part of a standard [JuliaPro](https://juliacomputing.com/products/juliapro.html#t01) download from Julia Computing. 
