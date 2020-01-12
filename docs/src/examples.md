@@ -510,7 +510,7 @@ using Miletus, BusinessDays
 using Miletus.TermStructure
 using Miletus.DayCounts
 
-import Miletus: Both, Receive, Contract, When, AtObs, value
+import Miletus: Both, Receive, Contract, When, At, value
 import Miletus: YieldModel
 import BusinessDays: USGovernmentBond
 import Base.Dates: today, days, Day, Year
@@ -519,7 +519,7 @@ import Base.Dates: today, days, Day, Year
 First let's show an example of the creation of a zero coupon bond.  For this type of bond a payment of the par amount occurs only on the maturity date.
 
 ```@example couponbond
-zcb = When(AtObs(today()+Day(360)), Receive(100USD))
+zcb = When(At(today()+Day(360)), Receive(100USD))
 ```
 
 Next let's define a function for our coupon bearing bond.  The definition of multiple coupon payments and the final par payment involves a nested set of `Both` types, with each individual payment constructed from a `When` of an date observation and a payment contract.
@@ -527,10 +527,10 @@ Next let's define a function for our coupon bearing bond.  The definition of mul
 ```@example couponbond
 function couponbond(par,coupon,periods::Int,start::Date,expiry::Date)
     duration = expiry - start
-    bond = When(AtObs(expiry), Receive(par))
+    bond = When(At(expiry), Receive(par))
     for p = periods-1:-1:1
         coupondate = start + duration*p/periods
-        bond = Both(bond,When(AtObs(coupondate), Receive(coupon)))
+        bond = Both(bond,When(At(coupondate), Receive(coupon)))
     end
     return bond
 end
