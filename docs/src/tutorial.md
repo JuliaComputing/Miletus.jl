@@ -143,9 +143,9 @@ Built-in primitive `Observable` types include the following:
 
 Built-in derived observable types include the following:
 
-* `AtObs(t::Date) <: Observable{Bool}`
+* `At(t::Date) <: Observable{Bool}`
 
-    * `AtObs(t::Date) = LiftObs(==,DateObs(),ConstObs(t))`
+    * `At(t::Date) = LiftObs(==,DateObs(),ConstObs(t))`
     * An observable that is `true` when the date is `t`
     * This type of observable is used as part of the construction of the derived contract primitives `ZCB`, `WhenAt`, `Forward`, and `European`
 
@@ -183,16 +183,16 @@ The expression `At(Date("2016-12-25"))` creates a new `LiftObs` observable objec
 using Miletus # hide
 import Miletus: LiftObs, DateObs, ConstObs # hide
 
-typealias AtObs LiftObs{typeof(==),Tuple{DateObs,ConstObs{Date}},Bool}
+typealias At LiftObs{typeof(==),Tuple{DateObs,ConstObs{Date}},Bool}
 
-AtObs(t::Date) = LiftObs(==,DateObs(),ConstObs(t))
+At(t::Date) = LiftObs(==,DateObs(),ConstObs(t))
 
-typealias At AtObs
+typealias At At
 
 nothing # hide
 ```
 
-The arguments to `LiftObs` in the definition of `AtObs` include:
+The arguments to `LiftObs` in the definition of `At` include:
 
 * The `==` function that will be applied to two observable values on date quantities
 * A `DateObs` object that acts as a reference observable quantity for the "Current Date" when valuing a model
@@ -212,7 +212,7 @@ With use of the `When` primitive `Contract`, the combination of our defined `Rec
 
 The concept of optionality provides a contract acquirer with a choice on whether to exercise particular rights embedded in that contract.  The most basic `Contract` primitives representing optionality in Miletus are the `Either` and `Cond` primitives described previously.
 
-Adjusting the zero coupon bond example above to incorporate the `Either`, `Both` and `AtObs` `Contract` and `Observable` primitives allow for implementing a European Call option as repeated below.
+Adjusting the zero coupon bond example above to incorporate the `Either`, `Both` and `At` `Contract` and `Observable` primitives allow for implementing a European Call option as repeated below.
 
 ```@example motivating
 x = When(At(Date("2016-12-25")), Either(Both(SingleStock(), Pay(100USD)), Zero()))
@@ -247,11 +247,11 @@ By combining these contract primitives, a set of `typealias` quantities are defi
 
     * Sell a contract `c` for an amount of a particular real valued object or currency
 
-* `ZCB(date::Date, x::Union{Real,CurrencyQuantity}) = When(AtObs(date), Receive(x))`
+* `ZCB(date::Date, x::Union{Real,CurrencyQuantity}) = When(At(date), Receive(x))`
 
     * A "Zero Coupon Bond" that provides for obtaining a particular amount of a real valued object or currency on a particular maturity `date`
 
-* `WhenAt(date::Date, c::Contract) = When(AtObs(date), c)`
+* `WhenAt(date::Date, c::Contract) = When(At(date), c)`
 
     * Activate the contract `c` on the particular maturity `date`
 
