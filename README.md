@@ -1,7 +1,5 @@
 # Miletus.jl
 
-[![Build Status](https://travis-ci.org/JuliaComputing/Miletus.jl.svg?branch=master)](https://travis-ci.org/JuliaComputing/Miletus.jl)
-
 [![][docs-stable-img]][docs-stable-url]
 
 *Miletus* is a financial contract modelling language written in Julia, based on papers by Peyton Jones and Eber [[PJ&E2000]](#PJE2000),[[PJ&E2003]](#PJE2003) (more closely modelled on the second one).
@@ -40,5 +38,4 @@ value(m, amput)
 * <a id="PJE2003">[PJ&E2003]</a>: Simon Peyton Jones and Jean-Marc Eber, ["How to write a financial contract"](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.7885), in "The Fun of Programming", ed Gibbons and de Moor, Palgrave Macmillan 2003.
 
 
-[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://pkg.julialang.org/docs/Miletus/
+[docs-stable-url]: https://juliahub.com/docs/Miletus/Sk1m2/1.0.0/
