@@ -7,7 +7,7 @@ using CSV, DataFrames
 s = SingleStock()
 d1 = today()
 
-bs = CSV.read("bs.csv")
+bs = CSV.read("bs.csv",DataFrame)
 
 # 1. Test with floats
 calls = EuropeanCall.(d1 .+ Day.(bs.days), [s], float.(bs.strikeprice))
@@ -21,7 +21,7 @@ atol=1e-6; rtol=1e-3
 
 # @test all(isapprox.(ivol.(m,calls,value.(m,calls)), bs.sigma))
 
-crr = CSV.read("crr.csv")
+crr = CSV.read("crr.csv",DataFrame)
 
 eucalls = EuropeanCall.(d1 .+ Dates.Day.(crr.days), [s], float.(crr.strikeprice))
 euputs  = EuropeanPut.(d1 .+ Dates.Day.(crr.days), [s], float.(crr.strikeprice ))
@@ -35,7 +35,7 @@ m = CRRModel.(d1, d1 .+ Dates.Day.(crr.days), crr.nsteps, float.(crr.startprice)
 @test all(isapprox.(value.(m,amcalls) , crr.ca, rtol=rtol,atol=atol))
 @test all(isapprox.(value.(m,amputs)  , crr.pa, rtol=rtol,atol=atol))
 
-tian = CSV.read("tian.csv")
+tian = CSV.read("tian.csv",DataFrame)
 
 eucalls = EuropeanCall.(d1 .+ Dates.Day.(tian.days), [s], float.(tian.strikeprice))
 euputs  = EuropeanPut.(d1 .+ Dates.Day.(tian.days), [s], float.(tian.strikeprice ))
@@ -60,7 +60,7 @@ atol=1e-6; rtol=1e-3
 @test all(isapprox.(value.(m,calls) ./ [USD], bs.c, rtol=rtol,atol=atol))
 @test all(isapprox.(value.(m,puts) ./ [USD], bs.p,  rtol=rtol,atol=atol))
 
-crr = CSV.read("crr.csv")
+crr = CSV.read("crr.csv",DataFrame)
 
 eucalls = EuropeanCall.(d1 .+ Dates.Day.(crr.days), [s], float.(crr.strikeprice .* [USD]))
 euputs  = EuropeanPut.(d1 .+ Dates.Day.(crr.days), [s], float.(crr.strikeprice .* [USD]))
@@ -75,7 +75,7 @@ m = CRRModel.([d1],d1 .+ Dates.Day.(crr.days), crr.nsteps, float.(crr.startprice
 @test all(isapprox.(value.(m,amcalls) ./ [USD], crr.ca, rtol=rtol,atol=atol))
 @test all(isapprox.(value.(m,amputs)  ./ [USD], crr.pa, rtol=rtol,atol=atol))
 
-tian = CSV.read("tian.csv")
+tian = CSV.read("tian.csv",DataFrame)
 
 eucalls = EuropeanCall.(d1 .+ Dates.Day.(tian.days), [s], float.(tian.strikeprice .* [USD]))
 euputs  = EuropeanPut.(d1 .+ Dates.Day.(tian.days), [s], float.(tian.strikeprice .* [USD]))
@@ -90,7 +90,7 @@ m = TianModel.([d1],d1 .+ Dates.Day.(tian.days), tian.nsteps, float.(tian.startp
 @test all(isapprox.(value.(m,amcalls) ./ [USD], tian.ca, rtol=rtol,atol=atol))
 @test all(isapprox.(value.(m,amputs)  ./ [USD], tian.pa, rtol=rtol,atol=atol))
 
-jr = CSV.read("jr.csv")
+jr = CSV.read("jr.csv",DataFrame)
 
 eucalls = EuropeanCall.(d1 .+ Dates.Day.(jr.days), [s], float.(jr.strikeprice .* [USD]))
 euputs  = EuropeanPut.(d1 .+ Dates.Day.(jr.days), [s], float.(jr.strikeprice .* [USD]))
