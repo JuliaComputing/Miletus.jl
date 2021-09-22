@@ -1,7 +1,7 @@
 name = "Miletus"
 uuid = "3ae66bd7-4256-56cd-8b87-f856965b5ccf"
 authors = ["Simon Byrne <simon@juliacomputing.com>", "Avik Sengupta <avik@juliacomputing.com>"]
-version = "1.0.0"
+version = "1.0.1"
 
 [deps]
 BusinessDays = "4f18b42c-503e-5345-9536-bb0f25fc7038"
@@ -17,19 +17,11 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 StatsFuns = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 
 [compat]
-julia = "1"
 BusinessDays = "^0.9"
 ForwardDiff = "^0.10"
-Optim = "^0.17"
-Reexport = "^0.2"
-SpecialFunctions = "^0.7"
-StatsBase = "^0.29"
-StatsFuns = "^0.8"
-
-[extras]
-CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["CSV", "DataFrames", "Test"]
+Optim = "^1"
+Reexport = "^1"
+SpecialFunctions = "^1"
+StatsBase = "0.29,0.30,0.31,0.32,^0.33"
+StatsFuns = "^0.8,^0.9"
+julia = "^1.3"
