@@ -8,11 +8,11 @@ export CurrencyUnit, CurrencyQuantity, unit, USD, GBP, currval
 struct CurrencyUnit{S}
 end
 
-struct CurrencyQuantity{U<:CurrencyUnit,T<:Real} <: Number
+struct CurrencyQuantity{U<:CurrencyUnit,T<:Number} <: Number
     val::T
-    CurrencyQuantity{U,T}(val::T) where {U<:CurrencyUnit,T<:Real} = new(val)
+    CurrencyQuantity{U,T}(val::T) where {U<:CurrencyUnit,T<:Number} = new(val)
 end
-CurrencyQuantity{S}(x::T) where {S,T<:Real} = CurrencyQuantity{S,T}(x)
+CurrencyQuantity{S}(x::T) where {S,T<:Number} = CurrencyQuantity{S,T}(x)
 
 
 import Base: show, zero, one, length, float, convert
