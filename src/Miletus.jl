@@ -7,7 +7,8 @@ using Statistics: mean
 export CurrencyUnit, CurrencyQuantity, USD, GBP,
  value, process, ivol, fit, fit_ivol,
  SingleStock, CoreModel, CoreForwardModel, GeomBMModel,
- montecarlo, MonteCarloModel, LeastSquaresMonteCarlo
+ montecarlo, MonteCarloModel, LeastSquaresMonteCarlo 
+export AsianFixedStrikeCall, AsianFloatingStrikeCall
 
 import Optim
 import StatsBase: fit
@@ -44,6 +45,8 @@ include("contracts.jl")
 include("process.jl")
 
 
+
+
 include("models/abstractmodel.jl")
 include("models/core.jl")
 include("models/coreforward.jl")
@@ -55,6 +58,8 @@ include("models/montecarlo.jl")
 include("models/lsmc.jl")
 
 include("print.jl")
+
+include("asian.jl")
 
 include("greeks.jl")
 export vega, delta, rho, greek
