@@ -8,7 +8,8 @@ export CurrencyUnit, CurrencyQuantity, USD, GBP,
  value, process, ivol, fit, fit_ivol,
  SingleStock, CoreModel, CoreForwardModel, GeomBMModel,
  montecarlo, MonteCarloModel, LeastSquaresMonteCarlo 
-export AsianFixedStrikeCall, AsianFloatingStrikeCall
+
+
 
 import Optim
 import StatsBase: fit
@@ -51,8 +52,10 @@ include("models/abstractmodel.jl")
 include("models/core.jl")
 include("models/coreforward.jl")
 include("models/geombm.jl")
+include("models/geomou.jl")
 include("models/binomial.jl")
 include("models/binomial_ivol.jl")
+include("models/trinomial.jl")
 
 include("models/montecarlo.jl")
 include("models/lsmc.jl")
@@ -60,6 +63,10 @@ include("models/lsmc.jl")
 include("print.jl")
 
 include("asian.jl")
+export AsianFixedStrikeCall, AsianFloatingStrikeCall
+include("swing.jl")
+export DiscreteSwingContract
+
 
 include("greeks.jl")
 export vega, delta, rho, greek
