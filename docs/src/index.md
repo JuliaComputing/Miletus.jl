@@ -22,4 +22,10 @@ using Miletus
 
 At this point you can use any of the primitive Miletus types for defining new contracts, constructing and manipulating either your own contracts or a set of pre-existing option contracts included with Miletus, as well as executing valuation operations against any combination of built-in and user-defined primitives that comprise your contract.
 
-An extended version of Miletus (called Miletus Pro), with additonal models, can be purchased from Julia Computing. A trial install of MiletusPro is available as part of a standard [JuliaPro](https://juliacomputing.com/products/juliapro.html#t01) download from Julia Computing. 
+### Thales of Miletus
+
+The name of this package makes a reference to [Thales of Miletus](https://en.wikipedia.org/wiki/Thales_of_Miletus), an ancient Greek mathematician and philosopher, who was born and lived in the Ionian city of [Miletus](https://en.wikipedia.org/wiki/Miletus). He is often referred to as the Father of Science. 
+
+### Credits
+
+This package was created at [Julia Computing](https://juliacomputing.com), with subsequent contributions from the [wider community](https://github.com/JuliaComputing/Miletus.jl/graphs/contributors)

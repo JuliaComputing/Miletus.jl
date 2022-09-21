@@ -4,22 +4,18 @@ load_dir(x) = map(file -> joinpath("lib", x, file), readdir(joinpath(Base.source
 
 makedocs(
     modules = [Miletus],
-    clean = false,
-    format = [:html, :latex],
-    sitename = "JuliaFin∕Miletus",
+    format = Documenter.HTML(
+        prettyurls = get(ENV, "CI", nothing) == "true",
+        assets = ["assets/jc.css"],
+        warn_outdated = true,
+        collapselevel=1,
+        ),
+    sitename = "Miletus",
     pages = Any[
         "Introduction" => "index.md",
         "Tutorial" => "tutorial.md",
-        "Examples" => "examples.md"
+        "Examples" => "examples.md",
+        "Reference" => "api.md"
     ],
-    assets = ["assets/jc.css"]
 )
 
-deploydocs(
-    repo   = "github.com/JuliaComputing/Miletus.jl.git",
-    julia  = "0.5",
-    osname = "linux",
-    deps = nothing,
-    make = nothing,
-    target = "build",
-)

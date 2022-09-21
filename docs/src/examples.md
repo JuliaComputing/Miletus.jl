@@ -5,7 +5,8 @@
 Below we define a set of various spread options that show how one can combine vanilla options into more complex payoffs.
 
 ```@example spreads
-using Miletus, Gadfly, Colors
+using Miletus, Gadfly, Colors, Dates
+using Cairo, Fontconfig
 
 import Miletus: Both, Give, Contract, WhenAt, value
 import Base.strip
@@ -37,7 +38,7 @@ Then we construct example analytical, binomial, and Monte Carlo test models that
 ```@example spreads
 gbmm = GeomBMModel(startdate, K₂, interestrate, carryrate, volatility)
 crr  = CRRModel(startdate, expirydate, L, K₂, interestrate, carryrate, volatility)
-mcm  = Miletus.montecarlo(gbmm, startdate:expirydate, 10_000)
+mcm  = Miletus.montecarlo(gbmm, startdate:Day(1):expirydate, 10_000)
 nothing # hide
 ```
 
@@ -506,14 +507,14 @@ value(mcm, strangle₁)
 Unlike a zero coupon bond, a coupon bearing bond pays the holder a specified amount at regular intervals up to the maturity date of the bond.  These coupon payments, and the interest that can accumulate on those payments must be taken into account when pricing the coupon bond.  The structuring of a coupon bond with Miletus provides an example of how to construct a product with multiple observation dates.
 
 ```@example couponbond
-using Miletus, BusinessDays
+using Miletus, BusinessDays, Dates
 using Miletus.TermStructure
 using Miletus.DayCounts
 
 import Miletus: Both, Receive, Contract, When, At, value
 import Miletus: YieldModel
 import BusinessDays: USGovernmentBond
-import Base.Dates: today, days, Day, Year
+import Dates: today, days, Day, Year
 ```
 
 First let's show an example of the creation of a zero coupon bond.  For this type of bond a payment of the par amount occurs only on the maturity date.
@@ -569,9 +570,7 @@ value(ym,cpb)
 Asian options are structures whose payoff depends on the average price of an underlying security over a specific period of time, not just the price of the underlying at maturity.  To price an Asian option, we will make use of a Monte Carlo pricing model, as well as a contract that considers a `MovingAveragePrice`
 
 ```@example asianoption
-using Miletus
-using Gadfly
-using Colors
+using Miletus, Gadfly, Colors, Dates
 
 d1 = Dates.today()
 d2 = d1 + Dates.Day(120)
@@ -580,7 +579,7 @@ d2 = d1 + Dates.Day(120)
 Structing the model without currency units
 ```@example asianoption
 m = GeomBMModel(d1, 100.00, 0.05, 0.0, 0.3)
-mcm = montecarlo(m, d1:d2, 100_000)
+mcm = montecarlo(m, d1:Day(1):d2, 100_000)
 ```
 
 We can view the underlying simulation paths used for our Geometric Brownian Motion Model using Gadfly as follows:
