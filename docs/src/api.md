@@ -1,4 +1,4 @@
-## Types and function reference
+## Type and function reference
 
 ```@index
 Modules = [Miletus]
