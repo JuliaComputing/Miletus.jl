@@ -7,7 +7,9 @@ using Statistics: mean
 export CurrencyUnit, CurrencyQuantity, USD, GBP,
  value, process, ivol, fit, fit_ivol,
  SingleStock, CoreModel, CoreForwardModel, GeomBMModel,
- montecarlo, MonteCarloModel, LeastSquaresMonteCarlo
+ montecarlo, MonteCarloModel, LeastSquaresMonteCarlo 
+
+
 
 import Optim
 import StatsBase: fit
@@ -38,23 +40,40 @@ using .Currency
 include("utils/math.jl")
 include("utils/black.jl")
 include("utils/ivol.jl")
+include("utils/qr.jl")
 
 include("observables.jl")
 include("contracts.jl")
 include("process.jl")
 
 
+
+
 include("models/abstractmodel.jl")
 include("models/core.jl")
 include("models/coreforward.jl")
 include("models/geombm.jl")
+include("models/geomou.jl")
+include("models/sabr.jl")
 include("models/binomial.jl")
 include("models/binomial_ivol.jl")
+include("models/trinomial.jl")
+include("models/spline.jl")
 
 include("models/montecarlo.jl")
 include("models/lsmc.jl")
 
 include("print.jl")
+
+include("asian.jl")
+export AsianFixedStrikeCall, AsianFloatingStrikeCall
+
+include("swing.jl")
+export DiscreteSwingContract
+
+include("multipleexercise.jl")
+export LatticeStateContract
+
 
 include("greeks.jl")
 export vega, delta, rho, greek

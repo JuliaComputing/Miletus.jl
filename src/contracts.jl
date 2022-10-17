@@ -1,4 +1,4 @@
-export Receive, Pay, Buy, Sell, ZCB, Forward, Option, EuropeanCall, EuropeanPut, AmericanCall, AmericanPut, Scale
+export Give, Receive, Zero, Amount, Cond, When, Anytime, Until, Both, Either, Pay, Buy, Sell, ZCB, Forward, Option, EuropeanCall, EuropeanPut, AmericanCall, AmericanPut, Scale
 
 abstract type Contract end
 

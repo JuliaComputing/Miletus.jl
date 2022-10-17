@@ -5,7 +5,7 @@
 Below we define a set of various spread options that show how one can combine vanilla options into more complex payoffs.
 
 ```@example spreads
-using Miletus, Gadfly, Colors
+using Miletus, Gadfly, Colors, Dates
 
 import Miletus: Both, Give, Contract, WhenAt, value
 import Base.strip
@@ -37,7 +37,7 @@ Then we construct example analytical, binomial, and Monte Carlo test models that
 ```@example spreads
 gbmm = GeomBMModel(startdate, K₂, interestrate, carryrate, volatility)
 crr  = CRRModel(startdate, expirydate, L, K₂, interestrate, carryrate, volatility)
-mcm  = Miletus.montecarlo(gbmm, startdate:expirydate, 10_000)
+mcm  = Miletus.montecarlo(gbmm, startdate:Day(1):expirydate, 10_000)
 nothing # hide
 ```
 
@@ -67,10 +67,10 @@ plot(x = s₂, y = cp₂, Geom.line,
      Theme(default_color=colorant"blue", line_width = 1.0mm, panel_fill=nothing),
      Guide.title("Vanilla Call Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("vanilla_call.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("vanilla_call.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](vanilla_call.png)
+![](vanilla_call.svg)
 
 ```@example spreads
 value(gbmm, call₂)
@@ -94,10 +94,10 @@ plot(x = s₂, y = pp₂, Geom.line,
      Theme(default_color=colorant"blue", line_width = 1.0mm, panel_fill=nothing),
      Guide.title("Vanilla Put Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("vanilla_put.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("vanilla_put.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](vanilla_put.png)
+![](vanilla_put.svg)
 
 ```@example spreads
 value(gbmm, put₂)
@@ -139,10 +139,10 @@ plot(layer( x=s ,y=p_bfly₁,Geom.line,Theme(default_color=blk,line_width=1.5mm)
      ["black", "red", "green", "blue"]),
      Guide.title("Butterfly Call Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("butterfly_call.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("butterfly_call.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](butterfly_call.png)
+![](butterfly_call.svg)
 
 ```@example spreads
 value(gbmm, bfly₁)
@@ -181,10 +181,10 @@ plot(layer( x=s ,y=p_bfly₂,Geom.line,Theme(default_color=blk,line_width=1.5mm)
      ["black", "red", "green", "blue"]),
      Guide.title("Butterfly Put Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("butterfly_put.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("butterfly_put.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](butterfly_put.png)
+![](butterfly_put.svg)
 
 
 ```@example spreads
@@ -221,10 +221,10 @@ plot(layer( x=s, y=p_bear₁,Geom.line,Theme(default_color=blk,line_width=1.5mm)
      ["black", "red", "blue"]),
      Guide.title("Bear Call Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("bear_call.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("bear_call.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](bear_call.png)
+![](bear_call.svg)
 
 ```@example spreads
 value(gbmm, bear₁)
@@ -260,10 +260,10 @@ plot(layer( x=s,  y=p_bear₂,Geom.line,Theme(default_color=blk,line_width=1.5mm
      ["black", "red", "blue"]),
      Guide.title("Bear Put Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("bear_put.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("bear_put.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](bear_put.png)
+![](bear_put.svg)
 
 ```@example spreads
 value(gbmm, bear₂)
@@ -299,10 +299,10 @@ plot(layer( x=s ,y=p_bull₁,Geom.line,Theme(default_color=blk,line_width=1.5mm)
      ["black", "red", "blue"]),
      Guide.title("Bull Call Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("bull_call.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("bull_call.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](bull_call.png)
+![](bull_call.svg)
 
 ```@example spreads
 value(gbmm, bull₁)
@@ -338,10 +338,10 @@ plot(layer( x=s ,y=p_bull₂,Geom.line,Theme(default_color=blk,line_width=1.5mm)
      ["black", "red", "blue"]),
      Guide.title("Bear Put Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("bull_put.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("bull_put.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](bull_put.png)
+![](bull_put.svg)
 
 ```@example spreads
 value(gbmm, bull₂)
@@ -375,10 +375,10 @@ plot(layer( x=s ,y=p_strd₁,Geom.line,Theme(default_color=blk,line_width=1.5mm)
      ["black", "red", "blue"]),
      Guide.title("Straddle Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("straddle.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("straddle.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](straddle.png)
+![](straddle.svg)
 
 ```@example spreads
 value(gbmm, strd₁)
@@ -412,10 +412,10 @@ plot(layer( x=s ,y=p_strip,Geom.line,Theme(default_color=blk,line_width=1.5mm)),
      ["black", "red", "blue"]),
      Guide.title("Strip Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("strip.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("strip.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](strip.png)
+![](strip.svg)
 
 ```@example spreads
 value(gbmm, strip₁)
@@ -449,10 +449,10 @@ plot(layer( x=s ,y=p_strap,Geom.line,Theme(default_color=blk,line_width=1.5mm)),
      ["black", "red", "blue"]),
      Guide.title("Strap Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("strap.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("strap.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](strap.png)
+![](strap.svg)
 
 ```@example spreads
 value(gbmm, strap₁)
@@ -486,10 +486,10 @@ plot(layer( x=s ,y=p_strangle,Geom.line,Theme(default_color=blk,line_width=1.5mm
      ["black", "red", "blue"]),
      Guide.title("Strangle Payoff Curve at Expiry"),
      Guide.xlabel("Stock Price"), Guide.ylabel("Payoff"))
-draw(PNG("strangle.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("strangle.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](strangle.png)
+![](strangle.svg)
 
 ```@example spreads
 value(gbmm, strangle₁)
@@ -506,14 +506,14 @@ value(mcm, strangle₁)
 Unlike a zero coupon bond, a coupon bearing bond pays the holder a specified amount at regular intervals up to the maturity date of the bond.  These coupon payments, and the interest that can accumulate on those payments must be taken into account when pricing the coupon bond.  The structuring of a coupon bond with Miletus provides an example of how to construct a product with multiple observation dates.
 
 ```@example couponbond
-using Miletus, BusinessDays
+using Miletus, BusinessDays, Dates
 using Miletus.TermStructure
 using Miletus.DayCounts
 
 import Miletus: Both, Receive, Contract, When, At, value
 import Miletus: YieldModel
 import BusinessDays: USGovernmentBond
-import Base.Dates: today, days, Day, Year
+import Dates: today, days, Day, Year
 ```
 
 First let's show an example of the creation of a zero coupon bond.  For this type of bond a payment of the par amount occurs only on the maturity date.
@@ -569,9 +569,7 @@ value(ym,cpb)
 Asian options are structures whose payoff depends on the average price of an underlying security over a specific period of time, not just the price of the underlying at maturity.  To price an Asian option, we will make use of a Monte Carlo pricing model, as well as a contract that considers a `MovingAveragePrice`
 
 ```@example asianoption
-using Miletus
-using Gadfly
-using Colors
+using Miletus, Gadfly, Colors, Dates
 
 d1 = Dates.today()
 d2 = d1 + Dates.Day(120)
@@ -580,7 +578,7 @@ d2 = d1 + Dates.Day(120)
 Structing the model without currency units
 ```@example asianoption
 m = GeomBMModel(d1, 100.00, 0.05, 0.0, 0.3)
-mcm = montecarlo(m, d1:d2, 100_000)
+mcm = montecarlo(m, d1:Day(1):d2, 100_000)
 ```
 
 We can view the underlying simulation paths used for our Geometric Brownian Motion Model using Gadfly as follows:
@@ -588,10 +586,10 @@ We can view the underlying simulation paths used for our Geometric Brownian Moti
 ```@example asianoption
 theme=Theme(default_color=Colors.RGBA{Float32}(0.1, 0.1, 0.7, 0.1))
 p = plot([layer(x=mcm.dates,y=mcm.paths[i,:],Geom.line,theme) for i = 1:200]...,Theme(panel_fill=nothing))
-draw(PNG("asian_simulation_paths.png", 4inch, 3inch), ans); nothing # hide
+draw(SVG("asian_simulation_paths.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](asian_simulation_paths.png)
+![](asian_simulation_paths.svg)
 
 Now let's value a vanilla European call option using a Geometric Brownian Motion Model.
 

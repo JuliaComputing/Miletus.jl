@@ -6,7 +6,7 @@ In the example code below we show, without detailed explanation, how to construc
 
 ```@example motivating
 using Miletus
-using Base.Dates
+using Dates
 using Miletus.TermStructure
 using Miletus.DayCounts
 using BusinessDays
@@ -180,14 +180,14 @@ The expression `Receive(100USD)` creates a `Contract` object that provides acqui
 The expression `At(Date("2016-12-25"))` creates a new `LiftObs` observable object that is `true` when the current date in the valuation model is "2016-12-25".  The implementation of the `At` observable type constructor includes the following operations:
 
 ```@example lift
-using Miletus # hide
+using Miletus, Dates # hide
 import Miletus: LiftObs, DateObs, ConstObs # hide
 
-typealias At LiftObs{typeof(==),Tuple{DateObs,ConstObs{Date}},Bool}
+const At = LiftObs{typeof(==),Tuple{DateObs,ConstObs{Date}},Bool}
 
 At(t::Date) = LiftObs(==,DateObs(),ConstObs(t))
 
-typealias At At
+const At = At
 
 nothing # hide
 ```
@@ -402,7 +402,7 @@ The `Contract` and `Observable` primitives described previously are used for set
          * `q`  : down probability, `1-p`
 
 ```@example binomialplots
-using GraphPlot, LightGraphs, Colors, Compose, Gadfly # hide
+using GraphPlot, Graphs, Colors, Compose, Gadfly # hide
 function superscript(i::Int) # hide
       # "⁰=0x2070 ¹=0xb9 ²=0xb2 ³=0xb3 ⁴=0x2074 ⁵=0x2075 ⁶=0x2076 ⁷=0x2077 ⁸=0x2078 ⁹=0x2079 " # hide
       s = ""                       # hide
@@ -481,11 +481,11 @@ for l = 1:L                      # hide
       push!(x, xc)                 # hide
       push!(u,0)                   # hide
       push!(d,0)                   # hide
-      xc += 1                      # hide
+      global xc += 1                      # hide
 end                              # hide
 
-u2 = max(u-d,0)                  # hide
-d2 = max(d-u,0)                  # hide
+u2 = max.(u.-d,0)                  # hide
+d2 = max.(d.-u,0)                  # hide
 
 U = String[]                     # hide
 D = String[]                     # hide
@@ -545,7 +545,7 @@ l = L-1                          # hide
 c = colorant"white"              # hide
 nodesize = 2.0                   # hide
 
-g = gplot(G,x,y,arrowlengthfrac=0.05, edgelabel = edgelabels, edgelabeldistx=-0.25, edgelabeldisty=-0.25, EDGELABELSIZE = 3.0, nodelabel = nodelabels, NODESIZE=0.04, NODELABELSIZE=1.5nodesize, nodefillc = c) # hide
+g = gplot(G,x,y,arrowlengthfrac=0.05, edgelabel = edgelabels, edgelabeldistx=-0.25, edgelabeldisty=-0.25, EDGELABELSIZE = 3.0, nodelabel = nodelabels, NODESIZE=0.04, NODELABELSIZE=1.5*nodesize, nodefillc = c); # hide
 draw(SVG("binomial_tree1.svg", 6inch, 4inch), g); nothing # hide
 ```
 
@@ -563,7 +563,7 @@ Plot of the underlying stock price dynamics on the binomial tree.
     * q = (u-exp(r*Δt))/(u-d)
 
 ```@example binomialplots
-g = gplot(G,x,y,arrowlengthfrac=0.05, edgelabel = edgelabels, edgelabeldistx=-0.25, edgelabeldisty=-0.25, EDGELABELSIZE = 3.0, nodelabel = nodelabels2, NODESIZE=0.04, NODELABELSIZE=1.5nodesize, nodefillc = c) # hide
+g = gplot(G,x,y,arrowlengthfrac=0.05, edgelabel = edgelabels, edgelabeldistx=-0.25, edgelabeldisty=-0.25, EDGELABELSIZE = 3.0, nodelabel = nodelabels2, NODESIZE=0.04, NODELABELSIZE=1.5nodesize, nodefillc = c); # hide
 draw(SVG("binomial_tree2.svg", 6inch, 4inch), g); nothing # hide
 ```
 
@@ -672,7 +672,7 @@ Miletus allows for generic derivatives of contract prices with respect to differ
 Consider the following contract:
 
 ```@example greeks
-using Miletus, Base.Dates
+using Miletus, Dates
 d1 = today()                                                                
 d2 = d1 + Day(150)                                                          
 c = EuropeanCall(d2, SingleStock(), 56.5USD)                               

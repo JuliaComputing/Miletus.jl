@@ -198,3 +198,12 @@ function delta(m::MonteCarloModel{C,D,T}, args...) where {C<:CoreForwardModel,D,
         value(mm, args...)
     end
 end
+
+function delta(m::HullWhiteTrinomialModel{C}, args...) where C<:CoreForwardModel
+    x = [forwardprice(m.core, SingleStock(), dt) for dt in m.dates]
+    ref = m.scale ./ x
+    ForwardDiff.gradient(x) do x
+        mm = HullWhiteTrinomialModel(m.core, m.dates, ref .* x, m.k, m.nmax, m.grid, m.transition)
+        value(mm, args...)
+    end
+end
