@@ -41,7 +41,35 @@ value(m::MonteCarloModel, c::WhenAt{Receive{T}}) where {T} =
 value(m::MonteCarloScenario, c::WhenAt{Receive{T}}) where {T} =
     value(m.core,c)
 
+function value(m::MonteCarloModel, c::WhenAt{Either{C1, C2}}) where {C1<:Contract, C2<:Contract}
+    N = date2index(m, maturitydate(c))
+    discount(m.core.yieldcurve, maturitydate(c)) * mean(valueat(ms, c.c, N) for ms in scenarios(m))
+end
 
+function value(m::MonteCarloModel, c::WhenAt{Amount{O}}) where O <: Observable
+    N = date2index(m, maturitydate(c))
+    discount(m.core.yieldcurve, maturitydate(c)) * mean(valueat(ms, c.c.o, N) for ms in scenarios(m))
+end
+
+function value(m::MonteCarloModel, c::WhenAt{Scale{O, C}}) where {O<:Observable, C<:Contract}
+    N = date2index(m, maturitydate(c))
+    discount(m.core.yieldcurve, maturitydate(c)) * mean(valueat(ms, c.c, N) for ms in scenarios(m))
+end
+
+function value(m::MonteCarloModel, c::WhenAt{Cond{O, C1, C2}}) where {O<:Observable, C1<:Contract, C2<:Contract}
+    N = date2index(m, maturitydate(c))
+    discount(m.core.yieldcurve, maturitydate(c)) * mean(valueat(ms, c.c, N) for ms in scenarios(m))
+end
+
+# Martingale property of the underlying
+function value(m::MonteCarloModel, c::WhenAt{SingleStock})
+    value(m.core, c)
+end
+value(m::MonteCarloModel, c::SingleStock) = value(m.core, c)
+
+function value(m::MonteCarloModel, c::Cond{O, C1, C2}) where {O<:Observable{Bool}, C1<:Contract, C2<:Contract}
+    mean([observeat(ms, c.p, 1) ? valueat(ms, c.c1, 1) : valueat(ms, c.c2, 1) for ms in scenarios(m)])
+end
 
 
 struct ScenarioIterator{M<:MonteCarloModel}
@@ -86,14 +114,47 @@ valueat(m::MonteCarloScenario, ::SingleStock, i::Int) = m.path[i]
 valueat(m::MonteCarloScenario, ::SingleStock, i::Int, ::Type{Dual}) =
     Dual(m.path[i], 1)
 
-
-
-# fallback
-function value(m::MonteCarloModel, c::WhenAt)
-    N = date2index(m, maturitydate(c))
-    discount(m.core.yieldcurve, maturitydate(c)) * mean(valueat(ms, c.c, N) for ms in scenarios(m))
+function valueat(m::MonteCarloScenario, c::WhenAt{SingleStock}, i::Int)
+    t = index2date(m,i)
+    T = maturitydate(c)
+    j = date2index(m, T)
+    forward_rate(m.core.yieldcurve, t, T) * m.path[j] 
 end
 
+function valueat(m::MonteCarloScenario, c::WhenAt{Amount{ConstObs{X}}}, i::Int) where {X}
+    t = index2date(m,i)
+    T = maturitydate(c)
+    forward_rate(m.core.yieldcurve, t, T) * c.c.o.val
+end
+
+function valueat(m::MonteCarloScenario, c::WhenAt{Cond{O, C1, C2}}, i::Int) where {O, C1, C2}
+    t = index2date(m,i)
+    T = maturitydate(c)
+    j = date2index(m, T)
+    forward_rate(m.core.yieldcurve, t, T) * valueat(m, c.c, j)
+end
+
+function valueat(m::MonteCarloScenario, c::Cond{O, C1, C2}, i::Int) where {O<:Observable{Bool}, C1<:Contract, C2<:Contract}
+    b = observeat(m, c.p, i)
+    b ? valueat(m, c.c1, i) : valueat(m, c.c2, i)
+end
+
+function valueat(m::MonteCarloScenario, c::WhenAt{Either{C1,C2}}, i::Int) where {C1,C2}
+    t = index2date(m,i)
+    T = maturitydate(c)
+    j = date2index(m, T)
+    v1 = valueat(m, c.c.c1, j)
+    v2 = valueat(m, c.c.c2, j)
+    maximum = max(v1,v2)
+    forward_rate(m.core.yieldcurve, t, T) * maximum
+end
+
+observeat(_::MonteCarloScenario, o::ConstObs{T}, _::Int) where T = o.val 
+function observeat(m::MonteCarloScenario, o::LiftObs{F, Tuple{DateObs, ConstObs{Date}}, Bool}, i::Int) where F
+    (_, t2) = o.a
+    t1 = index2date(m, i)
+    o.f(t1, t2.val)
+end 
 
 """
     montecarlo(m::GeomBMModel, dates, npaths)

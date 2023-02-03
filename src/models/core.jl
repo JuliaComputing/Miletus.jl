@@ -6,7 +6,6 @@ struct SingleStock <: Contract
 end
 
 abstract type AbstractCoreModel <: AbstractModel 
-
 end
 
 """
