@@ -9,6 +9,15 @@ struct DateObs <: Observable{Date}
 end
 
 """
+    TimeObs{T<:Real}() <: Observable{T}
+
+A singleton type representing the "free" time observable.
+"""
+struct TimeObs{T<:Real} <: Observable{T}
+end
+
+
+"""
     AcquisitionDateObs() <: Observable{Date}
 
 The acquisition date of the contract.
@@ -16,6 +25,13 @@ The acquisition date of the contract.
 struct AcquisitionDateObs <: Observable{Date}
 end
 
+"""
+    AcquisitionTimeObs() <: Observable{T}
+
+The acquisition time of the contract.
+"""
+struct AcquisitionTimeObs{T<:Real} <: Observable{T}
+end
 
 """
     ConstObs(x)
@@ -61,16 +77,18 @@ end
 
 An observable that is `true` when the date is `t`.
 """
-const At = LiftObs{typeof(==),Tuple{DateObs,ConstObs{Date}},Bool}
+const At = LiftObs{typeof(==),Tuple{U,ConstObs{T}},Bool} where {T <: Union{Date,Real},U<:Union{DateObs,TimeObs}}
 At(t::Date) = LiftObs(==,DateObs(),ConstObs(t))
+At(t::R) where {R<:Real} = LiftObs(==,TimeObs{R}(),ConstObs(t))
 
 """
     Before(t::Date) <: Observable{Bool}
 
 An observable that is `true` when the date is before or equal to `t`.
 """
-const Before = LiftObs{typeof(<=),Tuple{DateObs,ConstObs{Date}},Bool}
+const Before = LiftObs{typeof(<=),Tuple{U,ConstObs{T}},Bool} where {T <: Union{Date,Real},U<:Union{DateObs,TimeObs}}
 Before(t::Date) = LiftObs(<=,DateObs(),ConstObs(t))
+Before(t::R) where {R<:Real} = LiftObs(<=,TimeObs{R}(),ConstObs(t))
 
 @deprecate AtObs At
 @deprecate BeforeObs Before
