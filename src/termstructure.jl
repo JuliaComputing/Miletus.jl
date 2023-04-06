@@ -126,10 +126,16 @@ mutable struct ConstantVolatilityCurve <: VolatilityTermStructure
 
 end
 
-struct ConstantContinuousYieldCurve{DC,T} <: YieldTermStructure
+struct ConstantContinuousYieldCurve{DC,T,U} <: YieldTermStructure
     dc::DC
     rate::T
-    reference_date::Date
+    reference_date::U
+	function ConstantContinuousYieldCurve(rate::Real, reference_date::T) where {T}
+		new{Type{T},Real,T}(typeof(reference_date), rate, reference_date)
+	end
+	function ConstantContinuousYieldCurve(dc::DC,rate::Real, reference_date::T) where {DC,T}
+		new{DC,Real,T}(dc, rate, reference_date)
+	end
 end
 
 daycount(y::ConstantContinuousYieldCurve) = y.dc
@@ -137,16 +143,17 @@ startdate(y::ConstantContinuousYieldCurve) = y.reference_date
 discount(y::ConstantContinuousYieldCurve, yf::Float64) = exp(-y.rate * yf)
 
 discount(y::ConstantContinuousYieldCurve, d::Date) = discount(y, yearfraction(daycount(y), startdate(y), d))
+discount(y::ConstantContinuousYieldCurve, d) = discount(y, d - startdate(y))
 
-mutable struct ConstantYieldCurve{T} <: YieldTermStructure
-	dc::DayCount
+mutable struct ConstantYieldCurve{S,T,U} <: YieldTermStructure
+	dc::S
 	rate::T
 	compounding::Symbol
 	freq::Integer
-	reference_date::Date
+	reference_date::U
 end
 
-ConstantYieldCurve(dc::DayCount, rate::Real, compounding::Symbol, freq::Symbol, reference_date::Date) =
+ConstantYieldCurve(dc, rate::Real, compounding::Symbol, freq::Symbol, reference_date::Date) =
 		ConstantYieldCurve(dc, rate, compounding, eval(freq), reference_date)
 
 daycount(y::ConstantYieldCurve) = y.dc

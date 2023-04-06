@@ -39,9 +39,9 @@ GeomBMModel(startdate, startprice, yieldrate, carryrate, volatility) =
 numeraire(m::GeomBMModel) = numeraire(m.core)
 startdate(m::GeomBMModel) = startdate(m.core)
 
-yearfractionto(m::GeomBMModel, dt::Date) =
+yearfractionto(m::GeomBMModel, dt) =
     yearfractionto(m.core,  dt)
-forwardprice(m::GeomBMModel, s::SingleStock, dt::Date) =
+forwardprice(m::GeomBMModel, s::SingleStock, dt) =
     forwardprice(m.core, s, dt)
 
 value(m::GeomBMModel, c::SingleStock) = value(m.core, c)

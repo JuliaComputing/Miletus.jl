@@ -20,9 +20,9 @@ Arguments:
 * `q`  : down probability, `1-p`
 
 """
-struct BinomialGeomRWModel{T,V,S} <: AbstractModel
-    startdate::Date
-    enddate::Date
+struct BinomialGeomRWModel{P,T,V,S} <: AbstractModel
+    startdate::P
+    enddate::P
     nsteps::Int
     S₀::T
     Δt::Float64
@@ -49,9 +49,9 @@ numeraire(m::BinomialGeomRWModel{T}) where {T<:Real} = one(m.S₀)
 
 Cox-Ross-Rubenstein binomial model.
 """
-function CRRModel(startdate::Date, enddate::Date, nsteps::Int,
+function CRRModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
-    Δt = days(enddate - startdate) / (365 * nsteps)
+    Δt = __CRRtimestep(startdate,enddate,nsteps)
     σ  = volatility
     b  = interestrate - carryrate
     B  = exp(b*Δt)
@@ -66,6 +66,10 @@ function CRRModel(startdate::Date, enddate::Date, nsteps::Int,
     BinomialGeomRWModel(startdate,enddate,nsteps,startvalue,Δt,
                                 iR,logu,logd,p,q)
 end
+
+# dispatch on the type of timestep (Date or Float64)
+__CRRtimestep(from::Date,to::Date,nsteps) = days(to - from) / (365 * nsteps)
+__CRRtimestep(from,to,nsteps) = to - from / nsteps
 
 function JRModel(startdate::Date, enddate::Date, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T

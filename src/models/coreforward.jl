@@ -27,6 +27,8 @@ startdate(m::CoreForwardModel) = startdate(m.yieldcurve)
 yearfractionto(m::CoreForwardModel, dt::Date) =
     yearfraction(daycount(m.yieldcurve),  startdate(m),  dt)
 
+yearfractionto(m::CoreForwardModel, dt) =
+    dt - startdate(m)
 
 function value(m::CoreForwardModel, c::WhenAt{Receive{T}}) where T
     value(m, c.c) * discount(m.yieldcurve, maturitydate(c))

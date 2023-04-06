@@ -42,6 +42,10 @@ CoreModel(startdate::Date, startprice::T, yieldrate::V, carryrate::Float64=0.0) 
     CoreModel(startprice,
               ConstantContinuousYieldCurve(Actual365(), yieldrate, startdate),
               ConstantContinuousYieldCurve(Actual365(), carryrate, startdate))
+CoreModel(startdate::U, startprice::T, yieldrate::V, carryrate::Float64=0.0) where {U,T,V} =
+    CoreModel(startprice,
+              ConstantContinuousYieldCurve(yieldrate, 0.),
+              ConstantContinuousYieldCurve(carryrate, 0.))
 
 
 numeraire(m::CoreModel) = unit(m.startprice)
@@ -49,6 +53,8 @@ startdate(m::CoreModel) = startdate(m.yieldcurve)
 
 yearfractionto(m::CoreModel, dt::Date) =
     yearfraction(daycount(m.yieldcurve),  startdate(m.yieldcurve),  dt)
+yearfractionto(m::CoreModel, dt) =
+    dt - startdate(m.yieldcurve)
 
 function value(m::CoreModel, c::WhenAt{Receive{T}}) where T
     value(m, c.c) * discount(m.yieldcurve, maturitydate(c))
