@@ -30,7 +30,7 @@ numeraire(m::GeomOUModel) = numeraire(m.core)
 forwardprice(m::GeomOUModel, s::SingleStock, dt::Date) = forwardprice(m.core, s, dt)
 
 
-function montecarlo(m::GeomOUModel, dates::StepRange{Date}, npaths::Integer)
+function montecarlo(m::GeomOUModel, dates::StepRange, npaths::Integer)
     mz = 0 * exp(-m.θ * 0.0) - m.σ^2/(4*m.θ)*(1-exp(-m.θ *  0.0))*(1+exp(-m.θ * (2* 0.0- 0.0)))
     Tm = typeof(mz)
     Tf = typeof(forwardprice(m.core, SingleStock(), first(dates)))

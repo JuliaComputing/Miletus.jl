@@ -100,7 +100,7 @@ end
 
 Sample `npaths` Monte Carlo paths of the model `m`, at time `dates`.
 """
-function montecarlo(m::GeomBMModel{CoreModel{T,R,Q}, V}, dates::StepRange{Date}, npaths::Integer) where {T,R,Q,V}
+function montecarlo(m::GeomBMModel{CoreModel{T,R,Q}, V}, dates::StepRange, npaths::Integer) where {T,R,Q,V}
     σ = m.volatility
     S = typeof(m.core.yieldcurve.rate)
     Xt = Array{promote_type(T,V,S)}(undef, length(dates), npaths)
@@ -122,7 +122,7 @@ function montecarlo(m::GeomBMModel{CoreModel{T,R,Q}, V}, dates::StepRange{Date},
     MonteCarloModel(m.core, dates, copy(transpose(Xt)))
 end
 
-function value(m::GeomBMModel, c::Contract, ::Type{MonteCarloModel}, dates::StepRange{Date}, npaths::Integer)
+function value(m::GeomBMModel, c::Contract, ::Type{MonteCarloModel}, dates::StepRange, npaths::Integer)
     mcm = montecarlo(m, dates, npaths)
     value(mcm, c)
 end

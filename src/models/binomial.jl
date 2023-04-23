@@ -51,7 +51,7 @@ Cox-Ross-Rubenstein binomial model.
 """
 function CRRModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
-    Δt = __CRRtimestep(startdate,enddate,nsteps)
+    Δt = __timestep(startdate,enddate,nsteps)
     σ  = volatility
     b  = interestrate - carryrate
     B  = exp(b*Δt)
@@ -68,13 +68,13 @@ function CRRModel(startdate, enddate, nsteps::Int,
 end
 
 # dispatch on the type of timestep (Date or Float64)
-__CRRtimestep(from::Date,to::Date,nsteps) = days(to - from) / (365 * nsteps)
-__CRRtimestep(from,to,nsteps) = (to - from) / nsteps
+__timestep(from::Date,to::Date,nsteps) = days(to - from) / (365 * nsteps)
+__timestep(from,to,nsteps) = (to - from) / nsteps
 
-function JRModel(startdate::Date, enddate::Date, nsteps::Int,
+function JRModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
 
-    Δt = days(enddate - startdate) / (365 * nsteps)
+    Δt = __timestep(startdate,enddate,nsteps)
     σ  = volatility
     b  = interestrate - carryrate
     iR = exp(-interestrate*Δt)
@@ -86,9 +86,9 @@ function JRModel(startdate::Date, enddate::Date, nsteps::Int,
     BinomialGeomRWModel(startdate,enddate,nsteps,startvalue,Δt,
                                 iR,logu,logd,p,q)
 end
-function JRrnModel(startdate::Date, enddate::Date, nsteps::Int,
+function JRrnModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
-    Δt = days(enddate - startdate) / (365 * nsteps)
+    Δt = __timestep(startdate,enddate,nsteps)
     σ  = volatility
     b  = interestrate - carryrate
     B  = exp(b*Δt)
@@ -142,9 +142,9 @@ end
 
 Tian binomial model.
 """
-function TianModel(startdate::Date, enddate::Date, nsteps::Int,
+function TianModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
-    Δt = days(enddate - startdate) / (365 * nsteps)
+    Δt = __timestep(startdate,enddate,nsteps)
     σ = volatility
     v = exp(σ^2*Δt)
     r = interestrate - carryrate
