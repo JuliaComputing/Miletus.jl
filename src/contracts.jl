@@ -150,7 +150,7 @@ const EuropeanPut{C,T} = European{Sell{C,T}}
 EuropeanPut(date, c::Contract, strike::Union{Real,CurrencyQuantity}) = European(date, Sell(c, strike))
 
 
-const AnytimeBefore{C} = Anytime{Before, C}
+const AnytimeBefore{C} = Anytime{B, C} where {B<:Before}
 AnytimeBefore(date, c::Contract) = Anytime(Before(date), c)
 
 const American{C} = AnytimeBefore{Option{C}}
