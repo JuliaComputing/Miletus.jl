@@ -66,7 +66,7 @@ Base.iterate(sc::ScenarioIterator, i::Int=1) = i > sc.n ? nothing :
 
 Returns the index of `dt` in the path(s) of `m`.
 """
-function date2index(m::Union{MonteCarloScenario, MonteCarloModel}, dt::Date)
+function date2index(m::Union{MonteCarloScenario, MonteCarloModel}, dt)
     ii = searchsorted(m.dates, dt)
     isempty(ii) && throw(DomainError(dt))
     return ii[1]
@@ -100,7 +100,7 @@ end
 
 Sample `npaths` Monte Carlo paths of the model `m`, at time `dates`.
 """
-function montecarlo(m::GeomBMModel{CoreModel{T,R,Q}, V}, dates::StepRange, npaths::Integer) where {T,R,Q,V}
+function montecarlo(m::GeomBMModel{CoreModel{T,R,Q}, V}, dates, npaths::Integer) where {T,R,Q,V,}
     σ = m.volatility
     S = typeof(m.core.yieldcurve.rate)
     Xt = Array{promote_type(T,V,S)}(undef, length(dates), npaths)
@@ -122,7 +122,7 @@ function montecarlo(m::GeomBMModel{CoreModel{T,R,Q}, V}, dates::StepRange, npath
     MonteCarloModel(m.core, dates, copy(transpose(Xt)))
 end
 
-function value(m::GeomBMModel, c::Contract, ::Type{MonteCarloModel}, dates::StepRange, npaths::Integer)
+function value(m::GeomBMModel, c::Contract, ::Type{MonteCarloModel}, dates, npaths::Integer)
     mcm = montecarlo(m, dates, npaths)
     value(mcm, c)
 end

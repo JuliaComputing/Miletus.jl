@@ -1,14 +1,14 @@
 import Dates.Period
 
-struct MovingAveragePrice{C<:Contract,DP<:Period} <: Contract
+struct MovingAveragePrice{C<:Contract,DP} <: Contract
     c::C
     period::DP
 end
 
-AsianFixedStrikeCall(dt::Date, c::Contract, period::Period, strike) =
+AsianFixedStrikeCall(dt, c::Contract, period::Period, strike) =
     European(dt, Buy(MovingAveragePrice(c, period), strike))
 
-AsianFloatingStrikeCall(dt::Date, c::Contract, period::Period, strike) =
+AsianFloatingStrikeCall(dt, c::Contract, period::Period, strike) =
     European(dt, Both(c, Give(MovingAveragePrice(c, period))))
 
 

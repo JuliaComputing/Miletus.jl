@@ -8,8 +8,6 @@ datesets = [
 @testset "Greeks - $(ds.testdesc) " for ds in datesets
     d1, d2, drange = ds.d1, ds.d2, ds.drange
     # Setup
-    d1 = today()
-    d2 = d1 + Day(150)
     c1 = EuropeanCall(d2, SingleStock(), 56.5USD)
     core1 = CoreModel(d1, 47.32USD, 0.0, 0.0)
     c2 = EuropeanCall(d2, SingleStock(), 56.5)
