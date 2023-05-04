@@ -12,7 +12,11 @@ using Miletus.DayCounts
     
     @testset "Implied Volatility - $(ds.testdesc)" for ds in datesets
         d1, d2 = ds.d1, ds.d2
-        yc = ConstantYieldCurve(Actual365(), 0.01, :Continuous, :NoFrequency, d1)
+        yc = if d1 isa Real
+            ConstantYieldCurve(0.01, :Continuous, :NoFrequency, d1)
+        else
+            ConstantYieldCurve(Actual365(),0.01, :Continuous, :NoFrequency, d1)
+        end
         core = CoreModel(40.00, yc, 0.0)
         eucall = EuropeanCall(d2, SingleStock(), 41.00)
         euput = EuropeanPut(d2, SingleStock(), 41.00)

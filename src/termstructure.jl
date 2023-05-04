@@ -10,6 +10,8 @@ export YieldTermStructure, VolatilityTermStructure, ConstantYieldCurve,
 #General Interest Rate functionality
 
 compound_factor(r::Real, compounding::Symbol, freq::Symbol,  t::Real) = compound_factor(r, compounding, eval(freq), t)
+compound_factor(r::Real, compounding::Symbol, freq::Symbol,  t1,t2) = compound_factor(r, compounding, eval(freq), t2-t1)
+compound_factor(r::Real, compounding::Symbol, freq::Integer,  t1,t2) = compound_factor(r, compounding, freq, t2-t1)
 compound_factor(r::Real, compounding::Symbol,  t::Real) = compound_factor(r, compounding, NoFrequency, t)
 compound_factor(r::Real, compounding::Symbol, dc::DayCount, dates::Date...) = compound_factor(r, compounding, NoFrequency, dates...)
 compound_factor(r::Real, compounding::Symbol, freq::Symbol, dc::DayCount, dates::Date...) = compound_factor(r, compounding, eval(freq), dates...)
@@ -74,7 +76,7 @@ compounding(::YieldTermStructure) = :Continuous
 frequency(::YieldTermStructure) = NoFrequency
 
 discount(ts::YieldTermStructure, d::Date) = discount(ts, yearfraction(daycount(ts), startdate(ts), d))
-Base.getindex(ts::YieldTermStructure, d::Date) = discount(ts, d)
+Base.getindex(ts::YieldTermStructure, d) = discount(ts, d)
 implied_rate(ts::YieldTermStructure, d::Date) = implied_rate(1/ts[d], compounding(ts), frequency(ts), yearfraction(daycount(ts),  startdate(ts), d) )
 
 
@@ -84,11 +86,13 @@ discount(ts::YieldTermStructure, t::Real) = error("Must be implemented by concre
 
 function forward_rate(ts::YieldTermStructure, d1::Date, d2::Date )
 	if d1==d2
+		@show "h1"
 		t1 = yearfraction(daycount(ts), startdate(ts), d1)
 		t2 = t1+.0001
 		c=discount(ts, t1) / discount(ts, t2)
 		return implied_rate(c, compounding(ts), frequency(ts), t2-t1)
 	elseif d1<d2
+		@show "h2"
 		return implied_rate(discount(ts, d1)/discount(ts, d2), compounding(ts), frequency(ts), daycount(ts), d1, d2)
 	else
 		error("Forward start date must be before forward end dates")
@@ -101,7 +105,7 @@ function forward_rate(ts::YieldTermStructure, t1::Real, t2::Real )
 	end
 
 	compound = discount(ts, t1) / discount(ts, t2)
-	return implied_rate(discount(ts, t1) / discount(ts, t2), daycount(ts), t2-t1)
+	return implied_rate(discount(ts, t1) / discount(ts, t2), compounding(ts), frequency(ts), t2-t1)
 end
 
 zero_rate(ts::YieldTermStructure,  d1::Date) = zero_rate(ts, yearfraction(ts.dc, reference_date(ts), d1))
@@ -152,6 +156,9 @@ mutable struct ConstantYieldCurve{S,T,U} <: YieldTermStructure
 	freq::Integer
 	reference_date::U
 end
+
+ConstantYieldCurve( rate::Real, compounding::Symbol, freq::Symbol, reference_date) =
+		ConstantYieldCurve(nothing, rate, compounding, eval(freq), reference_date)
 
 ConstantYieldCurve(dc, rate::Real, compounding::Symbol, freq::Symbol, reference_date::Date) =
 		ConstantYieldCurve(dc, rate, compounding, eval(freq), reference_date)

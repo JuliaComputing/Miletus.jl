@@ -5,7 +5,7 @@ using Test
 
 datesets = [
 (testdesc = "Dates", d1 = today(),d2 = today()+Day(360)),
-(testdesc = "Real times", d1 = 0.,d2 = 25/365,)
+(testdesc = "Real times", d1 = 0.,d2 = 360/360,)
 ]
 
 @testset "Term Structure - $(ds.testdesc)" for ds in datesets[1:1]
