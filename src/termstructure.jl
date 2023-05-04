@@ -86,13 +86,11 @@ discount(ts::YieldTermStructure, t::Real) = error("Must be implemented by concre
 
 function forward_rate(ts::YieldTermStructure, d1::Date, d2::Date )
 	if d1==d2
-		@show "h1"
 		t1 = yearfraction(daycount(ts), startdate(ts), d1)
 		t2 = t1+.0001
 		c=discount(ts, t1) / discount(ts, t2)
 		return implied_rate(c, compounding(ts), frequency(ts), t2-t1)
 	elseif d1<d2
-		@show "h2"
 		return implied_rate(discount(ts, d1)/discount(ts, d2), compounding(ts), frequency(ts), daycount(ts), d1, d2)
 	else
 		error("Forward start date must be before forward end dates")
