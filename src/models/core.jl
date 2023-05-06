@@ -71,10 +71,15 @@ end
 
 """A model for the time value of money
 """
-struct YieldModel{S<:YieldTermStructure, T<:DateRoll, U<:HolidayCalendar} <: AbstractModel
+struct YieldModel{S<:YieldTermStructure, T<:Union{DateRoll,Nothing}, U<:Union{HolidayCalendar,Nothing}} <: AbstractModel
     yieldcurve::S
     dateroll::T
     holidaycalendar::U
+    function YieldModel(yc::S,dr::T=nothing,hc::U=nothing) where {S,T,U}
+        return new{S,T,U}(yc,dr,hc)
+    end
 end
 
-value(m::YieldModel, c::When{At, Receive{T}}) where {T} = value(m, c.c) * discount(m.yieldcurve, adjust(m.dateroll, m.holidaycalendar, maturitydate(c)))
+value(m::YieldModel, c::When{A, Receive{T}}) where {A<:At,T} = value(m.dateroll,m,c)
+value(dateroll::Nothing,m::YieldModel, c::When{A, Receive{T}}) where {A,T} = value(m, c.c) * discount(m.yieldcurve, maturitydate(c))
+value(dateroll,m::YieldModel, c::When{A, Receive{T}}) where {A,T} = value(m, c.c) * discount(m.yieldcurve, adjust(m.dateroll, m.holidaycalendar, maturitydate(c)))
