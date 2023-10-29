@@ -4,6 +4,7 @@ abstract type AbstractSingleModel <: AbstractModel end
 
 value(m::AbstractModel, ::DateObs) = startdate(m)
 value(m::AbstractModel, x::ConstObs) = x.val
+value(m::AbstractModel, x::ValueObs{C}) where C = value(m, x.c)
 value(m::AbstractModel, ::Zero) = 0*numeraire(m)
 value(m::AbstractModel, c::Amount) = value(m, c.o)
 value(m::AbstractModel, c::Scale{ConstObs{T},C}) where {T,C} = c.s.val * value(m, c.c)
@@ -33,6 +34,8 @@ value(m::AbstractModel, c::Give) = -value(m, c.c)
 
 @inline valueat(m::AbstractModel, o::ConstObs, i...) =
     o.val
+@inline valueat(m::AbstractModel, o::ValueObs, i...) =
+    valueat(m, o.c, i...)
 @inline valueat(m::AbstractModel, c::WhenAt{Zero}, i...) = 
     0.0*numeraire(m)
 

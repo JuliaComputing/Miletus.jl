@@ -26,6 +26,10 @@ struct ConstObs{T} <: Observable{T}
     val::T
 end
 
+struct ValueObs{C, R} <: Observable{R}
+    c :: C
+end
+
 obstype(::Observable{T}) where {T} = T
 obstype(::Tuple{Observable{T1}}) where {T1} = Tuple{T1}
 obstype(::Tuple{Observable{T1},Observable{T2}}) where {T1,T2} = Tuple{T1,T2}
@@ -44,6 +48,7 @@ function LiftObs(f::Function, a::Observable...)
     R = length(RR) > 1 ? Any : RR[1]
     LiftObs{typeof(f),typeof(a),R}(f,a...)
 end
+
 
 ### Derived observables
 
