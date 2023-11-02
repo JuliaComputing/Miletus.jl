@@ -24,7 +24,6 @@ o = AmericanPut(d2, SingleStock(), 90.0)
 @test isapprox(value(crrm, o), value(m, o, LeastSquaresMonteCarlo, 10_000, 3), rtol=0.013*4)
 
 
-
 # with currency
 m = GeomBMModel(d1, 100.00USD, 0.05, 0.0, 0.3)
 mcm = montecarlo(m, d1:Day(1):d2, 10_000)
@@ -49,5 +48,28 @@ bond = ZCB(maturity, faceValue)
 knockedIn = LiftObs(<, ConstObs(1.0CHF), ValueObs{SingleStock, CurrencyQuantity{CurrencyUnit{:CHF}, Float64}}(smi))
 brc = Both(bond, Anytime(knockedIn, Give(euput)))
 m = GeomBMModel(initialFixing, faceValue, 0.05, 0.0, 0.3)
+mcm = montecarlo(m, initialFixing:Day(1):maturity, 10_000)
+@test isapprox(value(mcm, brc), 860.70CHF, rtol=1e-2)
+
+# barrier options with basket of different singlestocks
+@defcurrency CHF
+
+initialFixing = Date("2020-12-15")
+maturity = Date("2023-12-15")
+faceValue = 1000CHF
+
+smi = SingleStock("smi")
+sandp = SingleStock("sandp")
+stoxx50 = SingleStock("stoxx50")
+
+startprices = Dict(smi => 10394.10CHF, sandp => 3702.25CHF, stoxx50 => 3525.87CHF)
+
+basket = Both(smi, Both(sandp, stoxx50))
+
+euput = EuropeanPut(maturity, basket, 100.00CHF)
+bond = ZCB(maturity, faceValue)
+knockedIn = LiftObs(<, ConstObs(1.0CHF), ValueObs{SingleStock, CurrencyQuantity{CurrencyUnit{:CHF}, Float64}}(smi))
+brc = Both(bond, Anytime(knockedIn, Give(euput)))
+m = GeomBMModel(initialFixing, startprices, 0.05, 0.0, 0.3)
 mcm = montecarlo(m, initialFixing:Day(1):maturity, 10_000)
 @test isapprox(value(mcm, brc), 860.70CHF, rtol=1e-2)

@@ -3,7 +3,10 @@ import .TermStructure: YieldTermStructure, ConstantContinuousYieldCurve, discoun
 
 
 struct SingleStock <: Contract
+    identifier::String
 end
+SingleStock() = SingleStock("")
+isequal(s1::SingleStock, s2::SingleStock) = isequal(s1.identifier, s2.identifier) 
 
 abstract type AbstractCoreModel <: AbstractModel 
 end
@@ -28,38 +31,59 @@ E[S_t] = S_0 \\times e^{(r-q)t}
 
 """
 struct CoreModel{T, S<:YieldTermStructure, R<:YieldTermStructure} <: AbstractCoreModel
-    startprice::T
+    startprices::Dict{SingleStock,T}
     yieldcurve::S
     carrycurve::R
 end
 
-CoreModel(startprice::T, yieldcurve::S, carryrate::Float64=0.0) where {T, S} =
-    CoreModel(startprice, yieldcurve,
+function CoreModel(startprice::T, yieldcurve::S, carryrate::Float64=0.0) where {T, S}
+    CoreModel(Dict(SingleStock() => startprice), yieldcurve,
               ConstantContinuousYieldCurve(daycount(yieldcurve), carryrate, startdate(yieldcurve)))
+end
 
-CoreModel(startdate::Date, startprice::T, yieldrate::V, carryrate::Float64=0.0) where {T,V} =
-    CoreModel(startprice,
+function CoreModel(startdate::Date, startprice::T, yieldrate::V, carryrate::Float64=0.0) where {T,V}
+    CoreModel(Dict(SingleStock() => startprice),
               ConstantContinuousYieldCurve(Actual365(), yieldrate, startdate),
               ConstantContinuousYieldCurve(Actual365(), carryrate, startdate))
+end
+
+function CoreModel(startprices::Dict{SingleStock,T}, yieldcurve::S, carryrate::Float64=0.0) where {T, S}
+    if isempty(startprices)
+        error("CoreModel needs to contain at least one stock to startprice mapping.")
+    end
+    CoreModel(startprices, yieldcurve,
+              ConstantContinuousYieldCurve(daycount(yieldcurve), carryrate, startdate(yieldcurve)))
+end
+
+function CoreModel(startdate::Date, startprices::Dict{SingleStock,T}, yieldrate::V, carryrate::Float64=0.0) where {T,V}
+    if isempty(startprices)
+        error("CoreModel needs to contain at least one stock to startprice mapping.")
+    end
+    CoreModel(startprices,
+              ConstantContinuousYieldCurve(Actual365(), yieldrate, startdate),
+              ConstantContinuousYieldCurve(Actual365(), carryrate, startdate))
+end
 
 
-numeraire(m::CoreModel) = unit(m.startprice)
+numeraire(m::CoreModel) = unit(first(values(m.startprices))) 
+#first is save here, because we make sure that startprices are non empty in the constructor.
+# TODO (drsk): we just take the numeraire of the first singlestock. We need to deal with multiple currencies.
 startdate(m::CoreModel) = startdate(m.yieldcurve)
 
-yearfractionto(m::CoreModel, dt::Date) =
+yearfractionto(m::CoreModel, dt::Date) = 
     yearfraction(daycount(m.yieldcurve),  startdate(m.yieldcurve),  dt)
 
 function value(m::CoreModel, c::WhenAt{Receive{T}}) where T
     value(m, c.c) * discount(m.yieldcurve, maturitydate(c))
 end
 
-value(m::CoreModel, c::SingleStock) = m.startprice
+value(m::CoreModel, c::SingleStock) = m.startprices[c]
 function value(m::CoreModel, c::WhenAt{SingleStock})
-    m.startprice * discount(m.carrycurve, maturitydate(c))
+    m.startprices[c.c] * discount(m.carrycurve, maturitydate(c))
 end
 
-function forwardprice(m::CoreModel, ::SingleStock, dt::Date)
-    m.startprice * discount(m.carrycurve, dt) / discount(m.yieldcurve, dt)
+function forwardprice(m::CoreModel, c::SingleStock, dt::Date)
+    m.startprices[c] * discount(m.carrycurve, dt) / discount(m.yieldcurve, dt)
 end
 
 """A model for the time value of money

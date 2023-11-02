@@ -3,7 +3,7 @@
 
 A model for `SingleStock`, following a geometric Brownian motion.
 * `startdate`
-* `startprice`: initial price at `startdate`
+* `startprices`: initial prices at `startdate`
 * `interestrate`: risk free rate of return.
 * `carryrate`: the carry rate, i.e. the net return for holding the asset:
   - for stocks this is typically positive (i.e. dividends)
@@ -31,8 +31,8 @@ struct GeomBMModel{C,V} <: AbstractModel
     volatility::V
 end
 
-GeomBMModel(startdate, startprice, yieldrate, carryrate, volatility) =
-    GeomBMModel(CoreModel(startdate, startprice, yieldrate, carryrate),
+GeomBMModel(startdate, startprices, yieldrate, carryrate, volatility) =
+    GeomBMModel(CoreModel(startdate, startprices, yieldrate, carryrate),
                 volatility)
 
 

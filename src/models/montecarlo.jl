@@ -10,7 +10,7 @@ A `MonteCarloModel` is the result of a simulation of a series of asset prices.
 struct MonteCarloModel{C,D,T} <: AbstractModel
     core::C
     dates::D
-    paths::Matrix{T}
+    paths::Dict{SingleStock, Matrix{T}}
 end
 
 """
@@ -25,7 +25,7 @@ A `MonteCarloScenario` is a single simulation scenario of a `MonteCarloModel`.
 struct MonteCarloScenario{C,D,S} <: AbstractModel
     core::C
     dates::D
-    path::S
+    path::Dict{SingleStock, S}
 end
 
 
@@ -71,13 +71,13 @@ value(m::MonteCarloModel, c::SingleStock) = value(m.core, c)
 function value(m::MonteCarloModel, c::Anytime{LiftObs{F,Tuple{ValueObs{SingleStock, A},ConstObs{A}},Bool},C}) where {F,A,C} 
     N = date2index(m, maturitydate(c))
     ss = scenarios(m)
-    discount(m.core.yieldcurve, maturitydate(c)) * sum(valueat(ms, c.c, N) for ms in scenarios(m) if observe(ms, c.p, any)) / length(ss)
+    discount(m.core.yieldcurve, maturitydate(c)) * sum(valueat(ms, c.c, N) for ms in ss if observe(ms, c.p, any)) / ss.n
 end
 
 function value(m::MonteCarloModel, c::Anytime{LiftObs{F,Tuple{ConstObs{A},ValueObs{SingleStock,A}},Bool},C}) where {F,A,C} 
     N = date2index(m, maturitydate(c))
     ss = scenarios(m)
-    discount(m.core.yieldcurve, maturitydate(c)) * sum(valueat(ms, c.c, N) for ms in scenarios(m) if observe(ms, c.p, any)) / length(ss)
+    discount(m.core.yieldcurve, maturitydate(c)) * sum(valueat(ms, c.c, N) for ms in ss if observe(ms, c.p, any)) / ss.n
 end
 
 function value(m::MonteCarloModel, c::Cond{O, C1, C2}) where {O<:Observable{Bool}, C1<:Contract, C2<:Contract}
@@ -97,11 +97,11 @@ end
 
 Returns an iterator over each `MonteCarloScenario` in `m`.
 """
-scenarios(m::MonteCarloModel) = ScenarioIterator(m, size(m.paths, 1))
+scenarios(m::MonteCarloModel) = ScenarioIterator(m, size(first(values(m.paths)), 1))
 
 Base.length(sc::ScenarioIterator) = sc.n
 Base.iterate(sc::ScenarioIterator, i::Int=1) = i > sc.n ? nothing :
-    (MonteCarloScenario(sc.m.core, sc.m.dates, view(sc.m.paths, i, :)), i+1)
+    (MonteCarloScenario(sc.m.core, sc.m.dates, Dict(collect(sc.m.paths) .|> ((ss, p),) -> (ss, view(p, i, :)))), i+1)
 
 """
     date2index(m::Union{MonteCarloScenario, MonteCarloModel}, dt::Date)
@@ -124,15 +124,15 @@ function forwardprice(m::MonteCarloModel, s::SingleStock, dt::Date)
     mean(forwardprice(ms, s, dt) for ms in scenarios(m))
 end
 
-valueat(m::MonteCarloScenario, ::SingleStock, i::Int) = m.path[i]
-valueat(m::MonteCarloScenario, ::SingleStock, i::Int, ::Type{Dual}) =
-    Dual(m.path[i], 1)
+valueat(m::MonteCarloScenario, s::SingleStock, i::Int) = m.path[s][i]
+valueat(m::MonteCarloScenario, s::SingleStock, i::Int, ::Type{Dual}) =
+    Dual(m.path[s][i], 1)
 
 function valueat(m::MonteCarloScenario, c::WhenAt{SingleStock}, i::Int)
     t = index2date(m,i)
     T = maturitydate(c)
     j = date2index(m, T)
-    forward_rate(m.core.yieldcurve, t, T) * m.path[j] 
+    forward_rate(m.core.yieldcurve, t, T) * m.path[c.c][j] 
 end
 
 function valueat(m::MonteCarloScenario, c::WhenAt{Amount{ConstObs{X}}}, i::Int) where {X}
@@ -164,10 +164,10 @@ function valueat(m::MonteCarloScenario, c::WhenAt{Either{C1,C2}}, i::Int) where 
 end
 
 function observe(ms::MonteCarloScenario, o::LiftObs{F,Tuple{ValueObs{SingleStock,A},ConstObs{A}},Bool}, predicateFold::Function)::Bool where {F,A}
-    predicateFold(p -> o.f(p, o.a[2].val), ms.path)    
+    predicateFold(p -> o.f(p, o.a[2].val), ms.path[o.a[1].c])    
 end
 function observe(ms::MonteCarloScenario, o::LiftObs{F,Tuple{ConstObs{A}, ValueObs{SingleStock,A}},Bool}, predicateFold::Function)::Bool where {F,A}
-    predicateFold(p -> o.f(o.a[1].val, p), ms.path)    
+    predicateFold(p -> o.f(o.a[1].val, p), ms.path[o.a[2].c])    
 end
 
 observeat(_::MonteCarloScenario, o::ConstObs{T}, _::Int) where T = o.val 
@@ -185,23 +185,28 @@ Sample `npaths` Monte Carlo paths of the model `m`, at time `dates`.
 function montecarlo(m::GeomBMModel{CoreModel{T,R,Q}, V}, dates::StepRange{Date}, npaths::Integer) where {T,R,Q,V}
     σ = m.volatility
     S = typeof(m.core.yieldcurve.rate)
-    Xt = Array{promote_type(T,V,S)}(undef, length(dates), npaths)
+    ss = keys(m.core.startprices)
+    Xts = Dict{SingleStock, Matrix{promote_type(T,V,S)}}()
     Δt = yearfraction(daycount(m.core.yieldcurve), step(dates))
     df = discount(m.core.carrycurve, Δt) / discount(m.core.yieldcurve, Δt)
-    for i = 1:npaths
-        x = value(m, SingleStock())
-        for (j, dt) in enumerate(dates)
-            if j == 1
-                Δt1 = yearfraction(daycount(m.core.yieldcurve), startdate(m), first(dates))
-                df1 = Δt1 == 0 ? 1.0 : discount(m.core.carrycurve, Δt1) / discount(m.core.yieldcurve, Δt1)
-                x *= df1 * exp(-σ^2*Δt1/2 + σ*sqrt(Δt1)*randn())
-            else
-                x *= df * exp(-σ^2*Δt/2 + σ*sqrt(Δt)*randn())
+    for s in ss
+        Xt = Matrix{promote_type(T,V,S)}(undef, length(dates), npaths)
+        for i = 1:npaths
+            x = value(m, s)
+            for (j, dt) in enumerate(dates)
+                if j == 1
+                    Δt1 = yearfraction(daycount(m.core.yieldcurve), startdate(m), first(dates))
+                    df1 = Δt1 == 0 ? 1.0 : discount(m.core.carrycurve, Δt1) / discount(m.core.yieldcurve, Δt1)
+                    x *= df1 * exp(-σ^2*Δt1/2 + σ*sqrt(Δt1)*randn())
+                else
+                    x *= df * exp(-σ^2*Δt/2 + σ*sqrt(Δt)*randn())
+                end
+                Xt[j,i] = x
             end
-            Xt[j,i] = x
         end
+        Xts[s] = transpose(Xt)
     end
-    MonteCarloModel(m.core, dates, copy(transpose(Xt)))
+    MonteCarloModel(m.core, dates, Xts)
 end
 
 function value(m::GeomBMModel, c::Contract, ::Type{MonteCarloModel}, dates::StepRange{Date}, npaths::Integer)

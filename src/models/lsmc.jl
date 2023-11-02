@@ -12,7 +12,8 @@ function value(m::LeastSquaresMonteCarlo, c::AnytimeBefore{C}) where C
     V = [valueat(ms, uc, N)*R for ms in scenarios(m.m)]
     for n = N-1:-1:2
         I = V .> 0 # in the money options
-        A = [x^d for d = 0:m.degree, x in m.m.paths[:,n]] # design matrix
+        A = [valueat(ms, uc, n)^d for d = 0:m.degree, ms in scenarios(m.m)] # design matrix
+        # TODO (drsk): need to check that this is correct.
         β = A[:,I]' \ V[I] # least squares regression
         cV = A'*β          # estimated continuation values
         for (p,ms) in enumerate(scenarios(m.m))
