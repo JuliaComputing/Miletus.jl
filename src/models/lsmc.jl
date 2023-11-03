@@ -6,8 +6,6 @@ end
 
 function value(m::LeastSquaresMonteCarlo, c::AnytimeBefore{C}) where C
     uc = c.c # underlying contract
-    uc1 = uc.c1
-    uc2 = uc.c2
     N = date2index(m.m, maturitydate(c))
     R = discount(m.m.core.yieldcurve, m.m.dates[2]) # TODO: could be better...
 

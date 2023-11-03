@@ -67,8 +67,22 @@ function value(m::MonteCarloModel, c::WhenAt{SingleStock})
 end
 value(m::MonteCarloModel, c::SingleStock) = value(m.core, c)
 
+# value of a barrier option
+function value(m::MonteCarloModel, c::Anytime{LiftObs{F,Tuple{ValueObs{SingleStock, A},ConstObs{A}},Bool},C}) where {F,A,C} 
+    N = date2index(m, maturitydate(c))
+    ss = scenarios(m)
+    discount(m.core.yieldcurve, maturitydate(c)) * sum(valueat(ms, c.c, N) for ms in scenarios(m) if observe(ms, c.p, any)) / length(ss)
+end
+
+function value(m::MonteCarloModel, c::Anytime{LiftObs{F,Tuple{ConstObs{A},ValueObs{SingleStock,A}},Bool},C}) where {F,A,C} 
+    N = date2index(m, maturitydate(c))
+    ss = scenarios(m)
+    discount(m.core.yieldcurve, maturitydate(c)) * sum(valueat(ms, c.c, N) for ms in scenarios(m) if observe(ms, c.p, any)) / length(ss)
+end
+
 function value(m::MonteCarloModel, c::Cond{O, C1, C2}) where {O<:Observable{Bool}, C1<:Contract, C2<:Contract}
-    mean([observeat(ms, c.p, 1) ? valueat(ms, c.c1, 1) : valueat(ms, c.c2, 1) for ms in scenarios(m)])
+    N = date2index(m, maturitydate(c))
+    discount(m.core.yieldcurve, maturitydate(c)) * mean(valueat(ms, c, N) for ms in scenarios(m))
 end
 
 
@@ -147,6 +161,13 @@ function valueat(m::MonteCarloScenario, c::WhenAt{Either{C1,C2}}, i::Int) where 
     v2 = valueat(m, c.c.c2, j)
     maximum = max(v1,v2)
     forward_rate(m.core.yieldcurve, t, T) * maximum
+end
+
+function observe(ms::MonteCarloScenario, o::LiftObs{F,Tuple{ValueObs{SingleStock,A},ConstObs{A}},Bool}, predicateFold::Function)::Bool where {F,A}
+    predicateFold(p -> o.f(p, o.a[2].val), ms.path)    
+end
+function observe(ms::MonteCarloScenario, o::LiftObs{F,Tuple{ConstObs{A}, ValueObs{SingleStock,A}},Bool}, predicateFold::Function)::Bool where {F,A}
+    predicateFold(p -> o.f(o.a[1].val, p), ms.path)    
 end
 
 observeat(_::MonteCarloScenario, o::ConstObs{T}, _::Int) where T = o.val 

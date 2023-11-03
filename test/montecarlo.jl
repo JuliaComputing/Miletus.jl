@@ -1,7 +1,9 @@
 using Miletus, Dates
 using Test
 
-import Miletus: WhenAt
+import Miletus: WhenAt, ConstObs, ValueObs, LiftObs
+using Miletus.Currency
+using Miletus.Currency: @defcurrency
 
 d1 = today()
 d2 = d1 + Day(120)
@@ -32,3 +34,20 @@ c = WhenAt(d2, SingleStock())
 
 o = EuropeanCall(d2, SingleStock(), 100.00USD) # std(y)/mean(y) = 0.013
 @test isapprox(value(m, o), value(mcm, o), rtol=0.013*4)
+
+# barrier options
+@defcurrency CHF
+
+initialFixing = Date("2020-12-15")
+maturity = Date("2023-12-15")
+faceValue = 1000CHF
+
+smi = SingleStock()
+
+euput = EuropeanPut(maturity, smi, 100.00CHF)
+bond = ZCB(maturity, faceValue)
+knockedIn = LiftObs(<, ConstObs(1.0CHF), ValueObs{SingleStock, CurrencyQuantity{CurrencyUnit{:CHF}, Float64}}(smi))
+brc = Both(bond, Anytime(knockedIn, Give(euput)))
+m = GeomBMModel(initialFixing, faceValue, 0.05, 0.0, 0.3)
+mcm = montecarlo(m, initialFixing:Day(1):maturity, 10_000)
+@test isapprox(value(mcm, brc), 860.70CHF, rtol=1e-2)

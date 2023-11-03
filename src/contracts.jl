@@ -184,6 +184,9 @@ The maturity date of a contract `c` is the date at which contract is completed o
 """
 maturitydate(c::WhenAt{C}) where {C} = c.p.a[2].val
 maturitydate(c::AnytimeBefore{C}) where {C} = c.p.a[2].val
+maturitydate(c::Anytime{LiftObs{F,Tuple{ValueObs{S, A},ConstObs{A}},Bool},C}) where {S,F,A,C} = maturitydate(c.c)
+maturitydate(c::Anytime{LiftObs{F,Tuple{ConstObs{A}, ValueObs{S, A}},Bool},C}) where {S,F,A,C} = maturitydate(c.c)
+maturitydate(c::Give{C}) where {C} = maturitydate(c.c) 
 
 """
     strikeprice(c::Contract)
