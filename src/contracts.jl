@@ -64,7 +64,7 @@ end
 """
     Cond(p::Observable{Bool}, c1::Contract, c2::Contract)
 
-If `p` is true at the point of aquisition, acquire `c1` else acquire `c2`.
+If `p` is true at the point of acquisition, acquire `c1` else acquire `c2`.
 """
 struct Cond{P<:Observable{Bool}, T1<:Contract, T2<:Contract} <: Contract
     p::P

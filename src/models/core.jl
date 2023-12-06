@@ -19,7 +19,7 @@ Contains the core parameters for the model of `SingleStock`:
   - for stocks this is typically positive (i.e. dividends)
   - for commodities this is typically negative (i.e. cost-of-carry)
 
-The `yieldcurve` and `carryrate` are all specified on a continously compounded, Actual/365 basis.
+The `yieldcurve` and `carryrate` are all specified on a continuously compounded, Actual/365 basis.
 
 The exact dynamics of the model are unspecified, but has the property that
 

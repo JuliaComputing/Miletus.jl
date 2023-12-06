@@ -10,7 +10,7 @@ A model for `SingleStock`, following a geometric Brownian motion.
   - for commodities this is typically negative (i.e. cost-of-carry)
 * `volatility`:
 
-The `interestrate`, `carryrate` and `volatility` are all specified on a continously compounded, Actual/365 basis.
+The `interestrate`, `carryrate` and `volatility` are all specified on a continuously compounded, Actual/365 basis.
 
 The price is assumed to follow the PDE:
 

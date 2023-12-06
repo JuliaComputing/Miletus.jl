@@ -2,7 +2,7 @@
     LatticeStateContract
 
 Represents a contract with multiple states, where at each exercise date the holder may
-move up or down states. This can represent a variety of multiple exercise contracs, such
+move up or down states. This can represent a variety of multiple exercise contracts, such
 as storage options.
 
 - `transition`: a square matrix of contracts: at each exercise date, the contract

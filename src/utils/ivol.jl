@@ -44,7 +44,7 @@ function _black_ivol(K, β)
     logK = log(K)
     x  = -logK
     s₂ = sqrt(-2*x) # point of inflection
-    β₂ = 0.5 - K*Φ(-s₂) # cancelation of some terms
+    β₂ = 0.5 - K*Φ(-s₂) # cancellation of some terms
     ν₂ = oftype(β₂,invsqrt2π)
     if β < β₂
         s₁ = s₂ - β₂/ν₂
@@ -218,7 +218,7 @@ end
 """
     householder_update(N, [H2, [H3]])
 
-The update incrememnt for `n`th order Householder's method (where `n` is the number of arguments) for finding the root of
+The update increment for `n`th order Householder's method (where `n` is the number of arguments) for finding the root of
 
     f(x) == 0
 
@@ -263,7 +263,7 @@ If  `d₋ < Δ < d₊`, then the interpolant is convex if and only if
 
 [DG85, eq. 3.18].
 
-Note: for the purposes of computation, the bounds are actually interchangable (i.e. `x₋` can be the upper bound).
+Note: for the purposes of computation, the bounds are actually interchangeable (i.e. `x₋` can be the upper bound).
 
 References
 

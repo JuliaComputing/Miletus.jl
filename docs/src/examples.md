@@ -575,7 +575,7 @@ d1 = Dates.today()
 d2 = d1 + Dates.Day(120)
 ```
 
-Structing the model without currency units
+Constructing the model without currency units
 ```@example asianoption
 m = GeomBMModel(d1, 100.00, 0.05, 0.0, 0.3)
 mcm = montecarlo(m, d1:Day(1):d2, 100_000)
