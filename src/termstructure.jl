@@ -62,10 +62,10 @@ end
 
 
 
-abstract type TermStuct end
+abstract type TermStruct end
 
-abstract type VolatilityTermStructure <: TermStuct end
-abstract type YieldTermStructure <: TermStuct end
+abstract type VolatilityTermStructure <: TermStruct end
+abstract type YieldTermStructure <: TermStruct end
 
 #Default values
 daycount(::YieldTermStructure) = Actual365()
