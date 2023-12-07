@@ -122,7 +122,7 @@ The set of `Contract` primitives includes the following types:
 
     * A contract that acts like contract `c` until `p` is `true`, at which point the object is abandoned, and hence becomes worthless.
 
-### Primative Observables
+### Primitive Observables
 
 Like `Contract`, `Observable{T}` is defined as an abstract type.  Specific instances of an `Observable` type are objects, possibly time-varying, and possibly unknown at contracting time, for which a direct measurement can be made.  Example observable quantities include date, price, temperature, population or other objects that can be objectively measured.
 
@@ -376,7 +376,7 @@ The `Contract` and `Observable` primitives described previously are used for set
            * for commodities this is typically negative (i.e. cost-of-carry)
         * `volatility`:
 
-           * The `interestrate`, `carryrate` and `volatility` are all specified on a continously compounded, Actual/365 basis.
+           * The `interestrate`, `carryrate` and `volatility` are all specified on a continuously compounded, Actual/365 basis.
            * The price is assumed to follow the PDE:
           $dS_t = (\kappa - \sigma^2/2) S_t dt + \sigma S_t dW_t$
            * where $W_t$ is a Wiener process, and `κ = interestrate - carryrate`.
@@ -393,7 +393,7 @@ The `Contract` and `Observable` primitives described previously are used for set
          * `startdate` : start date of process
          * `enddate` : end date of process
          * `nsteps` : number of steps in the tree
-         * `S₀` : inital value
+         * `S₀` : initial value
          * `Δt` : the time-difference between steps, typically `days(startdate - enddate) / (365*nsteps)`
          * `iR` : discount rate, `exp(-Δt*interestrate)`
          * `u`  : scale factor for up

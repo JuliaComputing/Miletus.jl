@@ -11,7 +11,7 @@ Arguments:
 * `startdate` : start date of process
 * `enddate` : start date of process
 * `nsteps` : number of steps in the tree
-* `S₀` : inital value
+* `S₀` : initial value
 * `Δt` : the time-difference between steps, typically `days(startdate - enddate) / (365*nsteps)`
 * `iR` : discount rate, `exp(-Δt*interestrate)`
 * `u`  : scale factor for up

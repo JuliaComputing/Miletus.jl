@@ -251,7 +251,7 @@ struct Preceding <: DateRoll; end
 struct ModPreceding <: DateRoll; end
 
 
-adust(::Unadjusted, c::BusinessDays.HolidayCalendar, d::Date) = d
+adjust(::Unadjusted, c::BusinessDays.HolidayCalendar, d::Date) = d
 
 function adjust(::ModFollowing, c::BusinessDays.HolidayCalendar, dt::Date)
     newDt=adjust(Following(), c, dt)
