@@ -1,10 +1,13 @@
 # test greeks
 
-let
+datesets = [
+    (testdesc = "Dates", d1 = today(),d2 = today()+Day(150),drange = today():Day(1):today()+Day(150)),
+    (testdesc = "Real times", d1 = 0.,d2 = 150/365,drange = 0.:1/365:150/365),
+]
 
+@testset "Greeks - $(ds.testdesc) " for ds in datesets
+    d1, d2, drange = ds.d1, ds.d2, ds.drange
     # Setup
-    d1 = today()
-    d2 = d1 + Day(150)
     c1 = EuropeanCall(d2, SingleStock(), 56.5USD)
     core1 = CoreModel(d1, 47.32USD, 0.0, 0.0)
     c2 = EuropeanCall(d2, SingleStock(), 56.5)
@@ -12,9 +15,9 @@ let
     gbm1 = GeomBMModel(core1, 0.1)
     gbm2 = GeomBMModel(core2, 0.1)
     Random.seed!(1)
-    mc1 = montecarlo(gbm1, d1:Day(1):d2, 10000)
+    mc1 = montecarlo(gbm1, drange, 10000)
     Random.seed!(1)
-    mc2 = montecarlo(gbm2, d1:Day(1):d2, 10000)
+    mc2 = montecarlo(gbm2, drange, 10000)
 
     # Compare with math formulae
     @test delta(gbm1, c1; autodiff = true) ≈ delta(gbm1, c1)
@@ -34,7 +37,7 @@ let
         mc3 = montecarlo(gbm3, mc1.dates, size(mc1.paths, 1))
         x = (value(mc3, c1) - value(mc1, c1)) / 1e-8
         Random.seed!(1)
-        @test isapprox(x, vega(gbm1, c1, MonteCarloModel, d1:Day(1):d2, 10000), rtol = 1e-4)
+        @test isapprox(x, vega(gbm1, c1, MonteCarloModel, drange, 10000), rtol = 1e-4)
         #srand(1)
         #@test isapprox(x, greek(mc1, c1; metric = :vol), rtol = 1e-4)
 
@@ -44,7 +47,7 @@ let
         mc4 = montecarlo(gbm4, mc2.dates, size(mc2.paths, 1))
         x = (value(mc4, c2) - value(mc2, c2)) / 1e-8
         Random.seed!(1)
-        @test isapprox(x, vega(gbm2, c2, MonteCarloModel, d1:Day(1):d2, 10000), rtol = 1e-4)
+        @test isapprox(x, vega(gbm2, c2, MonteCarloModel, drange, 10000), rtol = 1e-4)
         #srand(1)
         #@test isapprox(x, greek(mc2, c2; metric = :vol), rtol = 1e-4)
     end
@@ -59,7 +62,7 @@ let
         mc3 = montecarlo(gbm3, mc1.dates, size(mc1.paths, 1))
         x = (value(mc3, c1) - value(mc1, c1)) / 1e-8
         Random.seed!(1)
-        @test isapprox(x.val, delta(gbm1, c1, MonteCarloModel, d1:Day(1):d2, 10000), rtol = 1e-4)
+        @test isapprox(x.val, delta(gbm1, c1, MonteCarloModel, drange, 10000), rtol = 1e-4)
         #srand(1)
         #@test isapprox(x.val, greek(mc1, c1; metric = :strike), rtol = 1e-4)
 
@@ -71,7 +74,7 @@ let
         mc4 = montecarlo(gbm4, mc2.dates, size(mc2.paths, 1))
         x = (value(mc4, c2) - value(mc2, c2)) / 1e-8
         Random.seed!(1)
-        @test isapprox(x, delta(gbm2, c2, MonteCarloModel, d1:Day(1):d2, 10000), rtol = 1e-4)
+        @test isapprox(x, delta(gbm2, c2, MonteCarloModel, drange, 10000), rtol = 1e-4)
         #srand(1)
         #@test isapprox(x, greek(mc2, c2; metric = :strike), rtol = 1e-4)
     end
@@ -89,7 +92,7 @@ let
         mc3 = montecarlo(gbm3, mc1.dates, size(mc1.paths,1))
         x = (value(mc3, c1) - value(mc1,c1)) / 1e-8
         Random.seed!(1)
-        @test isapprox(x, rho(gbm1, c1, MonteCarloModel, d1:Day(1):d2, 10000), rtol = 1e-4)
+        @test isapprox(x, rho(gbm1, c1, MonteCarloModel, drange, 10000), rtol = 1e-4)
         #srand(1)
         #@test isapprox(x, greek(mc1, c1; metric = :interest), rtol = 1e-4)
 
@@ -104,7 +107,7 @@ let
         mc4 = montecarlo(gbm4, mc2.dates, size(mc2.paths,1))
         x = (value(mc4, c2) - value(mc2,c2)) / 1e-8
         Random.seed!(1)
-        @test isapprox(x, rho(gbm2, c2, MonteCarloModel, d1:Day(1):d2, 10000), rtol = 1e-4)
+        @test isapprox(x, rho(gbm2, c2, MonteCarloModel, drange, 10000), rtol = 1e-4)
         #srand(1)
         #@test isapprox(x, greek(mc2, c2; metric = :interest), rtol = 1e-4)
     end
@@ -127,7 +130,7 @@ let
         mc32 = montecarlo(gbm32, mc1.dates, size(mc1.paths, 1))
         x = (value(mc31,c1) + value(mc32,c1) - (2 * value(mc1, c1))) / (1e-4)^2
         Random.seed!(1)
-        @test x.val - Miletus.gamma(gbm1, c1, MonteCarloModel, d1:Day(1):d2, 10000) < 1e-8
+        @test x.val - Miletus.gamma(gbm1, c1, MonteCarloModel, drange, 10000) < 1e-8
         Random.seed!(1)
         @test x.val - greek(gbm1, c1; metric = :strike, n = 2) < 1e-8
 
@@ -147,10 +150,9 @@ let
         mc42 = montecarlo(gbm42, mc2.dates, size(mc2.paths, 1))
         x = (value(mc41,c2) + value(mc42,c2) - (2 * value(mc2, c2))) / (1e-4)^2
         Random.seed!(1)
-        @test x - Miletus.gamma(gbm2, c2, MonteCarloModel, d1:Day(1):d2, 10000) < 1e-8
+        @test x - Miletus.gamma(gbm2, c2, MonteCarloModel, drange, 10000) < 1e-8
         Random.seed!(1)
         @test x - greek(gbm2, c2; metric = :strike, n = 2) < 1e-8
     end
 
 end
-

@@ -2,6 +2,8 @@ abstract type Process{T} end
 
 struct DateProcess <: Process{Date}
 end
+struct TimeProcess <: Process{Real}
+end
 
 struct ConstProcess{T} <: Process{T}
     val::T

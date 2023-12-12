@@ -118,20 +118,20 @@ Buy(c::Contract, x::Union{Real,CurrencyQuantity}) = Both(c, Pay(x))
 const Sell{C,T} = Both{Give{C}, Receive{T}}
 Sell(c::Contract, x::Union{Real,CurrencyQuantity}) = Both(Give(c), Receive(x))
 
-const WhenAt{C} = When{At, C}
-WhenAt(date::Date, c::Contract) = When(At(date), c)
+const WhenAt{C} = When{A, C} where {A<:At}
+WhenAt(date, c::Contract) = When(At(date), c)
 
 const ZCB{T} = WhenAt{Receive{T}}
 ZCB(date::Date, x::Union{Real,CurrencyQuantity}) = WhenAt(date, Receive(x))
 
 const Forward{C,T} = WhenAt{Buy{C,T}}
-Forward(date::Date, c::Contract, strike::Union{Real,CurrencyQuantity}) = WhenAt(date, Buy(c, strike))
+Forward(date, c::Contract, strike::Union{Real,CurrencyQuantity}) = WhenAt(date, Buy(c, strike))
 
 const Option{C} = Either{C, Zero}
 Option(c::Contract) = Either(c, Zero())
 
 const European{C} = WhenAt{Option{C}}
-European(date::Date, c::Contract) = WhenAt(date, Option(c))
+European(date, c::Contract) = WhenAt(date, Option(c))
 
 """
     EuropeanCall(date, c, strike)
@@ -139,7 +139,7 @@ European(date::Date, c::Contract) = WhenAt(date, Option(c))
 A European call contract, with maturity `date`, on underlying contract `c` at price `strike`.
 """
 const EuropeanCall{C,T} = European{Buy{C,T}}
-EuropeanCall(date::Date, c::Contract, strike::Union{Real,CurrencyQuantity}) = European(date, Buy(c, strike))
+EuropeanCall(date, c::Contract, strike::Union{Real,CurrencyQuantity}) = European(date, Buy(c, strike))
 
 """
     EuropeanPut(date, c, strike)
@@ -147,14 +147,14 @@ EuropeanCall(date::Date, c::Contract, strike::Union{Real,CurrencyQuantity}) = Eu
 A European put contract, with maturity `date`, on underlying contract `c` at price `strike`.
 """
 const EuropeanPut{C,T} = European{Sell{C,T}}
-EuropeanPut(date::Date, c::Contract, strike::Union{Real,CurrencyQuantity}) = European(date, Sell(c, strike))
+EuropeanPut(date, c::Contract, strike::Union{Real,CurrencyQuantity}) = European(date, Sell(c, strike))
 
 
-const AnytimeBefore{C} = Anytime{Before, C}
-AnytimeBefore(date::Date, c::Contract) = Anytime(Before(date), c)
+const AnytimeBefore{C} = Anytime{B, C} where {B<:Before}
+AnytimeBefore(date, c::Contract) = Anytime(Before(date), c)
 
 const American{C} = AnytimeBefore{Option{C}}
-American(date::Date, c::Contract) = AnytimeBefore(date, Option(c))
+American(date, c::Contract) = AnytimeBefore(date, Option(c))
 
 """
     AmericanCall(date, c, strike)
@@ -162,7 +162,7 @@ American(date::Date, c::Contract) = AnytimeBefore(date, Option(c))
 An American call contract, with maturity `date`, on underlying contract `c` at price `strike`.
 """
 const AmericanCall{C,T} = American{Buy{C,T}}
-AmericanCall(date::Date, c::Contract, strike::Union{Real,CurrencyQuantity}) = American(date, Buy(c, strike))
+AmericanCall(date, c::Contract, strike::Union{Real,CurrencyQuantity}) = American(date, Buy(c, strike))
 
 """
     AmericanPut(date, c, strike)
@@ -170,7 +170,7 @@ AmericanCall(date::Date, c::Contract, strike::Union{Real,CurrencyQuantity}) = Am
 An American put contract, with maturity `date`, on underlying contract `c` at price `strike`.
 """
 const AmericanPut{C,T} = American{Sell{C,T}}
-AmericanPut(date::Date, c::Contract, strike::Union{Real,CurrencyQuantity}) = American(date, Sell(c, strike))
+AmericanPut(date, c::Contract, strike::Union{Real,CurrencyQuantity}) = American(date, Sell(c, strike))
 
 
 

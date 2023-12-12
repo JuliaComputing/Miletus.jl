@@ -622,3 +622,72 @@ oa2 = AsianFloatingStrikeCall(d2, SingleStock(), Dates.Month(1), 100.00)
 ```@example asianoption
 value(mcm, oa2)
 ```
+
+## `Real` Timesteps
+
+Real (e.g. `Float64`) values can be used in place of `Date`s. In virtually all places, the methods are the same except for:
+
+- The first argument to `ConstantYieldCurve` specifying the daycount convention is dropped.
+- The date related arguments to `YieldModel` are dropped.
+
+The modified example is as follows:
+
+```@example couponbond
+using Miletus
+using Miletus.TermStructure
+
+import Miletus: Both, Receive, Contract, When, At, value
+import Miletus: YieldModel
+```
+
+First let's show an example of the creation of a zero coupon bond.  For this type of bond a payment of the par amount occurs only on the maturity date.
+
+```@example couponbond
+zcb = When(At(1.), Receive(100USD))
+```
+
+Next let's define a function for our coupon bearing bond.  The definition of multiple coupon payments and the final par payment involves a nested set of `Both` types, with each individual payment constructed from a `When` of an date observation and a payment contract.
+
+```@example couponbond
+function couponbond(par,coupon,periods::Int,start::Date,expiry)
+    duration = expiry - start
+    bond = When(At(expiry), Receive(par))
+    for p = periods-1:-1:1
+        coupondate = start + duration*p/periods
+        bond = Both(bond,When(At(coupondate), Receive(coupon)))
+    end
+    return bond
+end
+```
+
+To construct an individual coupon bond, we first define necessary parameters for the par, coupon, number of periods, start date and expiry date.
+
+```@example couponbond
+par = 100USD
+coupon = 1USD
+periods = 12
+startdate = 0.
+expirydate = 1.
+```
+
+Now we can construct an instance of a coupon bearing bond.
+
+```@example couponbond
+cpb = couponbond(par,coupon,periods,startdate,expirydate)
+```
+
+Finally we can value this bond by constructing a yield curve and associated yield model and operating on the coupon bond contract with the defined yield model.
+
+```@example couponbond
+yc = ConstantYieldCurve(.1, :Continuous, :NoFrequency, 0.)
+```
+
+Now, leave off the date-related arguments for `YieldModel`:
+
+```@example couponbond
+ym = YieldModel(yc) 
+```
+
+```@example couponbond
+value(ym,cpb)
+```

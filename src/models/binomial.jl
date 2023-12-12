@@ -20,9 +20,9 @@ Arguments:
 * `q`  : down probability, `1-p`
 
 """
-struct BinomialGeomRWModel{T,V,S} <: AbstractModel
-    startdate::Date
-    enddate::Date
+struct BinomialGeomRWModel{P,T,V,S} <: AbstractModel
+    startdate::P
+    enddate::P
     nsteps::Int
     S₀::T
     Δt::Float64
@@ -39,8 +39,8 @@ struct CRRModel <: BinomialModel end
 struct JRModel <: BinomialModel end
 struct JRrnModel <: BinomialModel end
 
-numeraire(m::BinomialGeomRWModel{T}) where {T<:CurrencyQuantity} = unit(m.S₀)
-numeraire(m::BinomialGeomRWModel{T}) where {T<:Real} = one(m.S₀)
+numeraire(m::BinomialGeomRWModel{U,T,V,S}) where {U,T<:CurrencyQuantity,V,S} = unit(m.S₀)
+numeraire(m::BinomialGeomRWModel{U,T,V,S}) where {U,T<:Real,V,S} = one(m.S₀)
 
 
 
@@ -49,9 +49,9 @@ numeraire(m::BinomialGeomRWModel{T}) where {T<:Real} = one(m.S₀)
 
 Cox-Ross-Rubenstein binomial model.
 """
-function CRRModel(startdate::Date, enddate::Date, nsteps::Int,
+function CRRModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
-    Δt = days(enddate - startdate) / (365 * nsteps)
+    Δt = __timestep(startdate,enddate,nsteps)
     σ  = volatility
     b  = interestrate - carryrate
     B  = exp(b*Δt)
@@ -67,10 +67,14 @@ function CRRModel(startdate::Date, enddate::Date, nsteps::Int,
                                 iR,logu,logd,p,q)
 end
 
-function JRModel(startdate::Date, enddate::Date, nsteps::Int,
+# dispatch on the type of timestep (Date or Float64)
+__timestep(from::Date,to::Date,nsteps) = days(to - from) / (365 * nsteps)
+__timestep(from,to,nsteps) = (to - from) / nsteps
+
+function JRModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
 
-    Δt = days(enddate - startdate) / (365 * nsteps)
+    Δt = __timestep(startdate,enddate,nsteps)
     σ  = volatility
     b  = interestrate - carryrate
     iR = exp(-interestrate*Δt)
@@ -82,9 +86,9 @@ function JRModel(startdate::Date, enddate::Date, nsteps::Int,
     BinomialGeomRWModel(startdate,enddate,nsteps,startvalue,Δt,
                                 iR,logu,logd,p,q)
 end
-function JRrnModel(startdate::Date, enddate::Date, nsteps::Int,
+function JRrnModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
-    Δt = days(enddate - startdate) / (365 * nsteps)
+    Δt = __timestep(startdate,enddate,nsteps)
     σ  = volatility
     b  = interestrate - carryrate
     B  = exp(b*Δt)
@@ -102,11 +106,10 @@ function JRrnModel(startdate::Date, enddate::Date, nsteps::Int,
 end
 
 # the value at step `n`, index `i` (i.e. `i` ups, `n-i` downs)
-@inline valueat(m::BinomialGeomRWModel{T}, s::SingleStock, n, i) where {T} =
+@inline valueat(m::BinomialGeomRWModel{U,T,V,S}, s::SingleStock, n, i) where {U,T,V,S} =
     m.S₀*exp(m.logu*i + m.logd*(n-i))
 
-
-function value(m::BinomialGeomRWModel{T,V}, c::WhenAt{C}) where {C,T,V}
+function value(m::BinomialGeomRWModel{U,T,V,Q}, c::WhenAt{C}) where {C,U,T,V,Q}
     m.enddate == maturitydate(c) || error("Binomial end date must match maturity of option")
     N = m.nsteps
     S = typeof(valueat(m, c.c, N, N))
@@ -118,7 +121,8 @@ function value(m::BinomialGeomRWModel{T,V}, c::WhenAt{C}) where {C,T,V}
     end
     X[1]
 end
-function value(m::BinomialGeomRWModel{T}, c::AnytimeBefore{C}) where {C,T}
+
+function value(m::BinomialGeomRWModel{U,T,V,Q}, c::AnytimeBefore{C}) where {C,U,T,V,Q}
     m.enddate == maturitydate(c) || error("Binomial end date must match maturity of option")
     N = m.nsteps
     S = typeof(valueat(m, c.c, N, N))
@@ -138,9 +142,9 @@ end
 
 Tian binomial model.
 """
-function TianModel(startdate::Date, enddate::Date, nsteps::Int,
+function TianModel(startdate, enddate, nsteps::Int,
                startvalue, interestrate::Float64, carryrate::Float64, volatility::T) where T
-    Δt = days(enddate - startdate) / (365 * nsteps)
+    Δt = __timestep(startdate,enddate,nsteps)
     σ = volatility
     v = exp(σ^2*Δt)
     r = interestrate - carryrate

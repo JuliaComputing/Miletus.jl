@@ -99,7 +99,9 @@ end
 yearfraction(c::Union{Actual360,Thirty360},  d_start::Date,  d_end::Date) = daycount(c, d_start, d_end) / 360
 
 yearfraction(c::Actual365, d_start::Date,  d_end::Date) = daycount(c, d_start, d_end) / 365
+yearfraction(c, d_start::R,  d_end::R) where {R<:Real} = d_end - d_start
 yearfraction(c::Actual365, d::Dates.Day) = Dates.value(d) / 365
+yearfraction(c,d::R) where {R<:Real} = d
 
 function yearfraction(c::ISDAActualActual,  d_start::Date,  d_end::Date )
 
